@@ -1,0 +1,111 @@
+= IntelliJ IDEA CLI Inspector Wrapper
+Benjamin Schmid, setec@gmx.net
+
+A little to to integrate IntelliJ IDEA inspection in your continuous integration
+process using Jenkins, Bamboo, et. al.
+
+== What it does
+
+IntelliJ IDEA offers a vast amount of built-in code inspections. Using defined,
+shared inspection profiles within a project it's possible to guide developers
+in a wide range of coding asspects.
+
+Nevertheless though IDEA offers on-the-fly analysis and erorr visualization it
+does not stop the developer in committing code violating these helpful
+guidelines into the project repository.
+
+IDEA does offer a command line based execution of these inspections, but does
+not any additional help.
+
+This tool is aimed to simplify the inclusion of IDEA code inspection in your CI
+chain.
+
+== Prerequisites
+
+The script is developed in Groovy, so this has to be installed. Furthermore you
+need a valid installation of IntelliJ IDEA.
+
+== Usage
+
+For a full list of options please run `ideainspect.groovy -h`
+
+.Example usage
+  ./ideainspect.groovy -i ~/devel/idea \
+     -r ~/projects/p1 -p myinspections.xml
+     -d server
+     -s unused,Annotator,TodoComment.xml
+     -l ERROR
+
+This looks for a IntelliJ installation in `~/devel/idea`, tries
+to perform a CLI-based code inspection run on the IDEA
+project `~/projects/p1/.idea` with a inspection profile
+`~/projects/p1/.idea/inspectionProfiles/myinspections.xml`
+limiting the inspection run to the subdirectory `server` within
+your project.
+
+The IDEA inspection run will produce a set of `.xml` files. The amount,
+levels and result is based on the inspection profile you passed.
+
+By default it will look there for entries marked as `[WARNING]` or `[ERROR]`.
+In our case we only look out for the later one. If it finds entries, it will
+report the file joinded with the description.
+
+== Example output
+
+----
+➜ idea-cli-inspector.git git:(master) ✗ ./ideainspect.groovy -i ~/devel/idea -r ../dashboard.git -p bens_idea15_2015_11.xml  -d server -s Annotator,JSUnresolvedLibraryURL.xml,JavaDoc,TodoComment -l ERROR,WARNING
+
+= IntellIJ IDEA Code Analysis Wrapper - v1.0 - @bentolor
+#
+# Running IDEA IntelliJ Inspection
+#
+Executing: /home/ben/devel/idea/bin/idea.sh [/home/ben/devel/idea/bin/idea.sh, inspect, /home/ben/projects/idea-cli-inspector.git/../dashboard.git, /home/ben/projects/idea-cli-inspector.git/../dashboard.git/.idea/inspectionProfiles/bens_idea15_2015_11.xml, /home/ben/projects/idea-cli-inspector.git/../dashboard.git/target/inspection-results, -d, server]
+log4j:WARN No appenders could be found for logger (io.netty.util.internal.logging.InternalLoggerFactory).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+Please configure library 'Node.js v4.2.1 Core Modules' which is used in module 'client'
+
+ ...
+ IDEA spilling out quite a bunch of exceptions during inspection run
+ ...
+
+#
+# Inspecting produced result files in ../dashboard.git/target/inspection-results
+#
+# Looking for: [[WARNING], [ERROR]]
+# Ignoring   : [Annotator, JSUnresolvedLibraryURL, JavaDoc, TodoComment]
+--- ClassNamePrefixedWithPackageName.xml
+[WARNING] server/src/main/java/de/foo/dashboard/data/DatasetVerticle.java:28 -- Class name <code>DatasetVerticle</code> begins with its package name #loc
+[WARNING] server/src/main/java/de/foo/dashboard/data/DatasetBuilder.java:17 -- Class name <code>DatasetBuilder</code> begins with its package name #loc
+
+--- InterfaceNamingConvention.xml
+[WARNING] server/src/main/java/de/foo/dashboard/constants/Events.java:11 -- Interface name <code>Events</code> is too short (6 < 8) #loc
+
+--- SameParameterValue.xml
+[WARNING] server/src/main/java/de/foo/dashboard/data/DatasetBuilder.java:30 -- Actual value of parameter '<code>type</code>' is always '<code>de.exxcellent.dashboard.constants.DatasetType.ARRAY</code>'
+
+--- Skipping JavaDoc.xml
+--- Skipping TodoComment.xml
+--- DeprecatedClassUsageInspection.xml
+[WARNING] server/pom.xml:99 -- 'io.vertx.core.Starter' is deprecated
+
+--- Skipping JSUnresolvedLibraryURL.xml
+--- Skipping Annotator.xml
+--- unused.xml
+[WARNING] server/src/main/java/de/foo/dashboard/data/DatasetBuilder.java:40 -- Method is never used.
+[WARNING] server/src/main/java/de/foo/dashboard/constants/DatasetType.java:14 -- Field has no usages.
+[WARNING] server/src/main/java/de/foo/dashboard/constants/DatasetType.java:14 -- Field has no usages.
+[WARNING] server/src/main/java/de/foo/dashboard/data/DatasetVerticle.java:28 -- Class is not instantiated.
+[WARNING] server/src/main/java/de/foo/dashboard/transformers/History.java:23 -- Class is not instantiated.
+
+#
+# Analysis Result
+#
+Entries found. Returncode: 1
+----
+
+== Licence
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
