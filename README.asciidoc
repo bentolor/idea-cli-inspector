@@ -1,40 +1,106 @@
-= IntelliJ IDEA CLI Inspector Wrapper
-Benjamin Schmid, setec@gmx.net
+= IntelliJ IDEA CLI Inspector Wrapper `idea-cli-inspector`
+Benjamin Schmid, <benjamin.schmid@exxcellent.de>
+:experimental: // For kbd: macro
 
-A little to to integrate IntelliJ IDEA inspection in your continuous integration
-process using Jenkins, Bamboo, et. al.
+A little command-line tool to integrate the awesome IntelliJ IDEA code inspections
+in your continuous integration (CI) process using Jenkins, Bamboo, et. al.
+
+
+== Why this tool?
+IntelliJ IDEA offers a vast amount of very high-quality, built-in code inspections.
+Currently it has more than 1073 inspections to offer. Using project-shared inspection
+profiles it's possible *to guide developers* in a wide range of coding aspects in a
+*non-annoying way*.
+
+In contrast to well-known quality tools like http://www.sonarqube.org/[SonarQube]
+these inspections do have quite a few benefits:
+
+
+* *violations are instantly visible* during code writing with freely configurable
+    severities and warning levels. (i.e. bold red errors, yellow warning or
+        discreet hints as recommendation)
+* *false alarms can be easily and immediately suppressed.* A simple kbd:[Alt-Enter]
+    directly at the location where they occur is enough. +
+    Alternatively you can adjust your inspection settings just on-the-fly
+    (i.e. reduce level, disable inspection or configure inspection properties)
+* IDEA allows you to *check for new violations introduced with your changes*
+    _while you are trying to commit them_
+* Many inspections in IDEA provide semi-automatic quickfixes and auto-corrections.
+    So again sometimes addressing an issue is as simply as pressing kbd:[Alt-Enter]
+    kbd:[Right arrow] kbd:[Enter].
+* Because all inspections are based on IDEA´s Psi engine (which is a sort of
+    permanent running syntax compiler) the inspections effectively work on an actual
+    AST. So IDEA _understands_ the code and does not only look for (textual) patterns
+    which in return leads to a *significantly lower rate of false-positives.*
+
+
+Nevertheless, though IDEA offers on-the-fly analysis and error visualization it
+does not stop the developer in committing code violating these helpful
+guidelines into the project repository. JetBrain´s CI solution
+https://www.jetbrains.com/teamcity/[TeamCity] does offer a easy and good
+integration. It is also possible to execute the IDEA project inspection
+https://www.jetbrains.com/idea/help/working-with-intellij-idea-features-from-command-line.html[
+on the command line], which will produce a hard-readable set of XML files
+and no further support for integrating this into an automated tool chain.
+
+Therefore I did hack this little Groovy script to easily include & report
+inspection checks into your CI chain.
+
 
 == What it does
 
-IntelliJ IDEA offers a vast amount of built-in code inspections. Using defined,
-shared inspection profiles within a project it's possible to guide developers
-in a wide range of coding asspects.
-
-Nevertheless though IDEA offers on-the-fly analysis and erorr visualization it
-does not stop the developer in committing code violating these helpful
-guidelines into the project repository.
-
-IDEA does offer a command line based execution of these inspections, but does
-not any additional help.
-
 This tool is aimed to simplify the inclusion of IDEA code inspection in your CI
-chain.
+chain. It executes a command-line based run of an IntelliJ inspection run.
+This produces a set of hardly human-readable XML files in the target directory.
 
-== Prerequisites
+Therefore the tool subsequently parses the generated inspection result files,
+allows to filter out selected result files and looks for messages with given
+severity (WARNING and ERROR by default).
 
+The tool will list issues in a humand-readable form and exit with return code
+1 if it did find any issues (your CI tool should interpret this as failure)
+or will happily tell you that everyhing is fine.
+
+
+== Prerequisites & Limitations
 The script is developed in Groovy, so this has to be installed. Furthermore you
 need a valid installation of IntelliJ IDEA.
 
+NOTE: Due to a limitation of IDEA itself it is not possible to run more than one
+      IDEA instance at the same time. Therefore you must ensure, that no other
+      IDEA is running on your PC / on your CI agents.
+
+
 == Usage
+For a full list of options please run `ideainspect.groovy -h`:
 
-For a full list of options please run `ideainspect.groovy -h`
+----
+usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
+ -d,--dir <dir>         Limit IDEA inspection to this directory
+ -h,--help              Show usage information and quit
+ -i,--ideahome <dir>    IDEA installation home directory. Required
+ -l,--levels <level>    Levels to look for. Default: WARNING,ERROR
+ -p,--profile <file>    Use this inspection profile file located
+                        ".idea/inspectionProfiles".
+                        Example: "myprofile.xml"
+ -r,--rootdir <dir>     IDEA project root directory containing the ".idea"
+                        directory
+ -s,--skip <file>       Analysis result files to skip. For example
+                        "TodoComment" or "TodoComment.xml".
+                        Default: <empty>
+ -t,--resultdir <dir>   Target directory to place the IDEA inspection XML
+                        result files. Default: target/inspection-results
+----
 
-.Example usage
-  ./ideainspect.groovy -i ~/devel/idea \
-     -r ~/projects/p1 -p myinspections.xml
-     -d server
-     -s unused,Annotator,TodoComment.xml
-     -l ERROR
+
+== Example usage
+    $ groovy ideainspect.groovy \
+        -i ~/devel/idea \
+        -r ~/projects/p1 \
+        -p myinspections.xml
+        -d server
+        -s unused,Annotator,TodoComment.xml
+        -l ERROR
 
 This looks for a IntelliJ installation in `~/devel/idea`, tries
 to perform a CLI-based code inspection run on the IDEA
@@ -50,10 +116,11 @@ By default it will look there for entries marked as `[WARNING]` or `[ERROR]`.
 In our case we only look out for the later one. If it finds entries, it will
 report the file joinded with the description.
 
+
 == Example output
 
 ----
-➜ idea-cli-inspector.git git:(master) ✗ ./ideainspect.groovy -i ~/devel/idea -r ../dashboard.git -p bens_idea15_2015_11.xml  -d server -s Annotator,JSUnresolvedLibraryURL.xml,JavaDoc,TodoComment -l ERROR,WARNING
+➜ idea-cli-inspector.git git:(master) ✗ ./ideainspect.groovy -i ~/devel/idea -r ../dashboard.git -p bens_idea15_2015_11.xml -d server -s Annotator,JSUnresolvedLibraryURL.xml,JavaDoc,TodoComment -l ERROR,WARNING
 
 = IntellIJ IDEA Code Analysis Wrapper - v1.0 - @bentolor
 #
@@ -65,15 +132,15 @@ log4j:WARN Please initialize the log4j system properly.
 log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
 Please configure library 'Node.js v4.2.1 Core Modules' which is used in module 'client'
 
- ...
- IDEA spilling out quite a bunch of exceptions during inspection run
- ...
+   ...
+   IDEA spilling out quite a bunch of exceptions during inspection run
+   ...
 
 #
 # Inspecting produced result files in ../dashboard.git/target/inspection-results
 #
 # Looking for: [[WARNING], [ERROR]]
-# Ignoring   : [Annotator, JSUnresolvedLibraryURL, JavaDoc, TodoComment]
+# Ignoring : [Annotator, JSUnresolvedLibraryURL, JavaDoc, TodoComment]
 --- ClassNamePrefixedWithPackageName.xml
 [WARNING] server/src/main/java/de/foo/dashboard/data/DatasetVerticle.java:28 -- Class name <code>DatasetVerticle</code> begins with its package name #loc
 [WARNING] server/src/main/java/de/foo/dashboard/data/DatasetBuilder.java:17 -- Class name <code>DatasetBuilder</code> begins with its package name #loc
@@ -101,10 +168,16 @@ Please configure library 'Node.js v4.2.1 Core Modules' which is used in module '
 #
 # Analysis Result
 #
-Entries found. Returncode: 1
+Entries found. return code: 1
 ----
 
-== Licence
+
+== Source code & Contributions
+
+The source code is located under https://github.com/bentolor/idea-cli-inspector.
+
+
+== License
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 
