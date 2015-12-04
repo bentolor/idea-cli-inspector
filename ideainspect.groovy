@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-import groovy.io.FileType
 
 /*
  * Copyright 2015 Benjamin Schmid
@@ -16,10 +15,14 @@ import groovy.io.FileType
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+    https://github.com/bentolor/idea-cli-inspector
 
-// Note to the reader:
-//   This is my very first Groovy script. Please be nice.
-//   Not very happy with the results for myself.
+    Note to the reader:
+     This is my very first Groovy script. Please be nice.
+     Not very happy with the results for myself.
+*/
+import groovy.io.FileType
 import org.apache.commons.cli.Option
 
 println "= IntellIJ IDEA Code Analysis Wrapper - v1.0 - @bentolor"
@@ -28,11 +31,11 @@ println "= IntellIJ IDEA Code Analysis Wrapper - v1.0 - @bentolor"
 def resultDir = "target/inspection-results"
 def acceptedLeves = ["[WARNING]", "[ERROR]"]
 def skipFiles = []
-def ideaTimeout = 20 // broken - no effect
+def ideaTimeout = 20 // broken - has no effect
 
 
 //
-// --- Command line option handling
+// --- Command line option parsing
 //
 OptionAccessor opt = parseCli()
 
@@ -113,6 +116,7 @@ void assertPath(File profilePath, String description) {
   }
 }
 
+
 void fail(String message) {
   println "FATAL ERROR: " + message
   println "             Aborting."
@@ -121,7 +125,7 @@ void fail(String message) {
 
 
 private OptionAccessor parseCli() {
-  def cliBuilder = new CliBuilder(usage: './ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>')
+  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>')
   cliBuilder.with {
     h argName: 'help', longOpt: 'help', 'Show usage information and quit'
     l argName: 'level', longOpt: 'levels', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
@@ -157,6 +161,7 @@ private OptionAccessor parseCli() {
   }
   opt
 }
+
 
 private analyzeResult(File resultPath, List<String> acceptedLeves, List skipFiles) {
   println " "
