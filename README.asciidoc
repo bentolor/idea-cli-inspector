@@ -111,10 +111,15 @@ your project.
 
 The IDEA inspection run will produce a set of `.xml` files. The amount,
 levels and result is based on the inspection profile you passed.
+Option `-s` tells to skip & ignore the warnings contained in the
+inspection result files `unused.xml`, `Annotator.xml` and
+`TodoComment.xml`. You can ommit the `.xml` suffix for convenience.
 
-By default it will look there for entries marked as `[WARNING]` or `[ERROR]`.
-In our case we only look out for the later one. If it finds entries, it will
-report the file joinded with the description.
+By default it will then look for entries marked as `[WARNING]` or
+`[ERROR]` within the remaining inspection result report files.
+In our case we only care for ERROR entries. If it finds entries, it will
+report the file joined with a description pointing to the file
+location and the inspection rule.
 
 
 == Example output
