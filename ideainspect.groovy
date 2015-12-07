@@ -25,12 +25,13 @@
 import groovy.io.FileType
 import org.apache.commons.cli.Option
 
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.0 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.1 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
 def acceptedLeves = ["[WARNING]", "[ERROR]"]
-def skipFiles = []
+def skipResults = []
+def skipIssueFilesRegex = []
 def ideaTimeout = 20 // broken - has no effect
 
 
@@ -47,11 +48,10 @@ if (opt.l) {
   acceptedLeves.clear()
   opt.ls.each { level -> acceptedLeves << "[" + level + "]" }
 }
-// Skip files
-if (opt.s) {
-  skipFiles.clear()
-  opt.ss.each { skipFile -> skipFiles << skipFile.replace(".xml", "") }
-}
+// Skip result XML files
+if (opt.s) opt.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
+// Skip issues affecting given file name regex
+if (opt.sf) opt.sfs.each { skipRegex -> skipIssueFilesRegex << skipRegex }
 // target directory
 if (opt.t) resultDir = opt.t
 // timeout
@@ -102,7 +102,7 @@ if (exitValue != 0) fail("IDEA Process returned with an unexpected return code o
 //
 // --- Now lets look on the results
 //
-analyzeResult(resultPath, acceptedLeves, skipFiles)
+analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
 
 
 //
@@ -125,13 +125,15 @@ void fail(String message) {
 
 
 private OptionAccessor parseCli() {
-  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>')
+  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy\n      -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>')
   cliBuilder.with {
     h argName: 'help', longOpt: 'help', 'Show usage information and quit'
     l argName: 'level', longOpt: 'levels', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
       'Levels to look for. Default: WARNING,ERROR'
     s argName: 'file', longOpt: 'skip', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
-      'Analysis result files to skip. For example "TodoComment" or "TodoComment.xml". \nDefault: <empty>'
+      'Analysis result files to skip. For example "TodoComment" or "TodoComment.xml".'
+    sf argName: 'regex', longOpt: 'skipfile', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
+      'Ignore issues affecting source files matching given regex. Example ".*/generated/.*".'
     t argName: 'dir', longOpt: 'resultdir', args: 1,
       'Target directory to place the IDEA inspection XML result files. Default: target/inspection-results'
     i argName: 'dir', longOpt: 'ideahome', args: 1, required: true,
@@ -163,13 +165,15 @@ private OptionAccessor parseCli() {
 }
 
 
-private analyzeResult(File resultPath, List<String> acceptedLeves, List skipFiles) {
+private analyzeResult(File resultPath, List<String> acceptedLeves,
+                      List skipResults, List skipIssueFilesRegex) {
   println " "
   println "#"
   println "# Inspecting produced result files in $resultPath"
   println "#"
-  println "# Looking for: $acceptedLeves"
-  println "# Ignoring   : $skipFiles"
+  println "# Looking for levels    : $acceptedLeves"
+  println "# Ignoring result files : $skipResults"
+  println "# Ignoring source files : $skipIssueFilesRegex"
 
   def allGood = true;
 
@@ -186,15 +190,17 @@ private analyzeResult(File resultPath, List<String> acceptedLeves, List skipFile
     def fileIssues = []
     def xmlFileName = file.name
 
-    if (skipFiles.contains(xmlFileName.replace(".xml", ""))) {
+    if (skipResults.contains(xmlFileName.replace(".xml", ""))) {
       println "--- Skipping $xmlFileName"
       return
     }
 
     xmlDocument.problem.each { problem ->
       String severity = problem.problem_class.@severity
-      if (acceptedLeves.contains(severity)) {
-        String affectedFile = problem.file.text()
+      String affectedFile = problem.file.text()
+      boolean fileShouldBeIgnored = false
+      skipIssueFilesRegex.each { regex -> fileShouldBeIgnored = (fileShouldBeIgnored || affectedFile.matches(regex)) }
+      if (acceptedLeves.contains(severity) && !fileShouldBeIgnored) {
         String problemDesc = problem.description.text()
         String line = problem.line.text()
         fileIssues << "$severity $affectedFile:$line -- $problemDesc";

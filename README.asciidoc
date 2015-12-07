@@ -76,20 +76,22 @@ For a full list of options please run `ideainspect.groovy -h`:
 
 ----
 usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
- -d,--dir <dir>         Limit IDEA inspection to this directory
- -h,--help              Show usage information and quit
- -i,--ideahome <dir>    IDEA installation home directory. Required
- -l,--levels <level>    Levels to look for. Default: WARNING,ERROR
- -p,--profile <file>    Use this inspection profile file located
-                        ".idea/inspectionProfiles".
-                        Example: "myprofile.xml"
- -r,--rootdir <dir>     IDEA project root directory containing the ".idea"
-                        directory
- -s,--skip <file>       Analysis result files to skip. For example
-                        "TodoComment" or "TodoComment.xml".
-                        Default: <empty>
- -t,--resultdir <dir>   Target directory to place the IDEA inspection XML
-                        result files. Default: target/inspection-results
+ -d,--dir <dir>           Limit IDEA inspection to this directory
+ -h,--help                Show usage information and quit
+ -i,--ideahome <dir>      IDEA installation home directory. Required
+ -l,--levels <level>      Levels to look for. Default: WARNING,ERROR
+ -p,--profile <file>      Use this inspection profile file located
+                          ".idea/inspectionProfiles".
+                          Example: "myprofile.xml"
+ -r,--rootdir <dir>       IDEA project root directory containing the
+                          ".idea" directory
+ -s,--skip <file>         Analysis result files to skip. For example
+                          "TodoComment" or "TodoComment.xml".
+ -sf,--skipfile <regex>   Ignore issues affecting source files matching
+                          given regex. Example ".*/generated/.*".
+ -t,--resultdir <dir>     Target directory to place the IDEA inspection
+                          XML result files. Default:
+                          target/inspection-results
 ----
 
 
@@ -181,6 +183,14 @@ Entries found. return code: 1
 
 The source code is located under https://github.com/bentolor/idea-cli-inspector.
 
+
+== Changes
+[cols="1,5", options="header"]
+|===
+| Version | Change
+| 1.1 | Support for ignoring issues affecting specific source files using a regular expression  (Option `-sf`)
+| 1.0 | First release
+|===
 
 == License
 Licensed under the Apache License, Version 2.0 (the "License");
