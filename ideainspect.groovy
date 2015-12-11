@@ -81,7 +81,7 @@ if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absol
 //
 
 //  ~/projects/dashboard.git/. ~/projects/dashboard.git/.idea/inspectionProfiles/bens_idea15_2015_11.xml /tmp/ -d server
-def ideaArgs = [ideaPath.path, "inspect", rootDir.absolutePath, profilePath.absolutePath, resultPath.absolutePath]
+def ideaArgs = [ideaPath.path, "inspect", rootDir.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
 if (opt.d) ideaArgs << "-d" << opt.d
 
 println "#"
