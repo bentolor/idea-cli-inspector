@@ -179,6 +179,16 @@ Entries found. return code: 1
 ----
 
 
+== Troubleshooting & FAQ
+
+.I receive a error message _Please, specify sdk 'null' for module 'foo'_
+
+Probably you excluded `misc.xml` from the versionied IDEA project. Which is
+fine because this file is quite volatile. But this is the file where IDEA stores
+the "Root JDK".
+
+To fix this error simply assign every module a SDK other than "Project SDK".
+
 == Source code & Contributions
 
 The source code is located under https://github.com/bentolor/idea-cli-inspector.
