@@ -72,6 +72,13 @@ NOTE: Due to a limitation of IDEA itself it is not possible to run more than one
 
 
 == Usage
+
+=== Configuration file base usage
+
+IDEA CLI Inspector supports configuration via a `.ideainspect` file in the project
+root directory. If you
+
+=== Command line based usage
 For a full list of options please run `ideainspect.groovy -h`:
 
 ----
@@ -194,13 +201,7 @@ To fix this error simply assign every module a SDK other than "Project SDK".
 The source code is located under https://github.com/bentolor/idea-cli-inspector.
 
 
-== Changes
-[cols="1,5", options="header"]
-|===
-| Version | Change
-| 1.1 | Support for ignoring issues affecting specific source files using a regular expression  (Option `-sf`)
-| 1.0 | First release
-|===
+
 
 == License
 Licensed under the Apache License, Version 2.0 (the "License");

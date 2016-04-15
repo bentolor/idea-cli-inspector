@@ -24,8 +24,9 @@
 */
 import groovy.io.FileType
 import org.apache.commons.cli.Option
+import java.nio.file.Paths
 
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.1 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.2 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
@@ -33,48 +34,61 @@ def acceptedLeves = ["[WARNING]", "[ERROR]"]
 def skipResults = []
 def skipIssueFilesRegex = []
 def ideaTimeout = 20 // broken - has no effect
-
+verbose = false
 
 //
 // --- Command line option parsing
 //
-OptionAccessor opt = parseCli()
-
-if (!opt) System.exit(1) // will print usage automatically
-if (opt.help) { cliBuilder.usage(); System.exit(1); }
+def configOpts = parseConfigFile()
+def OptionAccessor cliOpts = parseCli((configOpts << args).flatten())
 
 // Levels
-if (opt.l) {
+if (cliOpts.l) {
   acceptedLeves.clear()
-  opt.ls.each { level -> acceptedLeves << "[" + level + "]" }
+  cliOpts.ls.each { level -> acceptedLeves << "[" + level + "]" }
 }
 // Skip result XML files
-if (opt.s) opt.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
+if (cliOpts.s) {
+  cliOpts.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
+}
 // Skip issues affecting given file name regex
-if (opt.sf) opt.sfs.each { skipRegex -> skipIssueFilesRegex << skipRegex }
+if (cliOpts.sf) {
+  cliOpts.sfs.each { skipRegex -> skipIssueFilesRegex << skipRegex }
+}
 // target directory
-if (opt.t) resultDir = opt.t
+if (cliOpts.t) {
+  resultDir = cliOpts.t
+}
 // timeout
-// if (opt.to) ideaTimeout = opt.to.toInteger();
+// if (cliOpts.to) ideaTimeout = cliOpts.to.toInteger();
 // IDEA home
 def scriptExtension = (System.properties['os.name'].toLowerCase().contains('windows')) ? ".bat" : ".sh"
 def pathSep = File.separator
-def ideaPath = new File(opt.i + pathSep + "bin" + pathSep + "idea" + scriptExtension)
-assertPath(ideaPath, "IDEA Installation directory")
-// Root Diretory
-def rootDir = new File(opt.r)
-def dotIdeaDir = new File(opt.r + pathSep + ".idea")
-assertPath(dotIdeaDir, "IDEA project directory")
+def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
+def ideaPath = new File(ideaHome + pathSep + "bin" + pathSep + "idea" + scriptExtension)
+assertPath(ideaPath, "IDEA Installation directory",
+           "Use a IDEA_HOME environment variable or the `ideahome` property in `.ideainspect` \n" +
+           "or the `-i` command line option to point me to a valid IntelliJ installation")
+// Passed project root Directory or working directory
+def rootDir =  cliOpts.r ? new File(cliOpts.r) : Paths.get(".").toAbsolutePath().normalize().toFile()
+def dotIdeaDir = new File(rootDir, ".idea")
+assertPath(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` property to the location of your `.idea` project")
 // Inspection Profile
-def profilePath = new File(dotIdeaDir.path + pathSep + "inspectionProfiles" + pathSep + opt.p)
+def profileName = cliOpts.p ?: "Project_Default.xml"
+def profilePath = new File(dotIdeaDir.path + pathSep + "inspectionProfiles" + pathSep + profileName)
 assertPath(profilePath, "IDEA inspection profile file")
 
 // Prepare result directory
 def resultPath = new File(resultDir);
-if (!resultPath.isAbsolute()) resultPath = new File(rootDir, resultDir);
-if (resultPath.exists() && !resultPath.deleteDir()) fail "Unable to remove result dir " + resultPath.absolutePath
-if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absolutePath
-
+if (!resultPath.absolute) {
+  resultPath = new File(rootDir, resultDir)
+};
+if (resultPath.exists() && !resultPath.deleteDir()) {
+  fail "Unable to remove result dir " + resultPath.absolutePath
+}
+if (!resultPath.mkdirs()) {
+  fail "Unable to create result dir " + resultPath.absolutePath
+}
 
 //
 // --- Actually running IDEA
@@ -82,36 +96,41 @@ if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absol
 
 //  ~/projects/dashboard.git/. ~/projects/dashboard.git/.idea/inspectionProfiles/bens_idea15_2015_11.xml /tmp/ -d server
 def ideaArgs = [ideaPath.path, "inspect", rootDir.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
-if (opt.d) ideaArgs << "-d" << opt.d
+if (cliOpts.d) {
+  ideaArgs << "-d" << cliOpts.d
+}
 
 println "#"
 println "# Running IDEA IntelliJ Inspection"
 println "#"
 println "Executing: " + ideaArgs.join(" ")
 
-def processBuilder=new ProcessBuilder(ideaArgs)
+def processBuilder = new ProcessBuilder(ideaArgs)
 processBuilder.redirectErrorStream(true)
 processBuilder.directory(rootDir)  // <--
 def ideaProcess = processBuilder.start()
 ideaProcess.consumeProcessOutput(System.out, System.err)
 ideaProcess.waitForOrKill(1000 * 60 * ideaTimeout)
 def exitValue = ideaProcess.exitValue()
-if (exitValue != 0) fail("IDEA Process returned with an unexpected return code of $exitValue")
-
+if (exitValue != 0) {
+  fail("IDEA Process returned with an unexpected return code of $exitValue")
+}
 
 //
 // --- Now lets look on the results
 //
 analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
 
-
 //
 //  --- Helper functions
 //
 
-void assertPath(File profilePath, String description) {
+void assertPath(File profilePath, String description, String hint = null) {
   if (!profilePath.exists()) {
     println description + " " + profilePath.path + " not found!"
+    if (hint) {
+      println hint
+    }
     System.exit(1)
   }
 }
@@ -123,9 +142,43 @@ void fail(String message) {
   System.exit(1)
 }
 
+private parseConfigFile() {
+  // Parse root dir with minimal CliBuilder
+  def cliBuilder = new CliBuilder()
+  cliBuilder.with {
+    r argName: 'dir', longOpt: 'rootdir', args: 1, required: false,
+      'IDEA project root directory containing the ".idea" directory'
+    v argName: 'verbose', longOpt: 'verbose', args: 0, required: false,
+      'Enable verbose logging & debugging'
+  }
 
-private OptionAccessor parseCli() {
-  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy\n      -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>')
+  def opt = cliBuilder.parse(args)
+  verbose = verbose ?: (opt && opt.v)
+  def rootDir = opt != null && opt.r ? opt.r : '.'
+
+  def configFile = new File(rootDir + '/.ideainspect')
+  def configArgs = []
+  if (configFile.exists()) {
+    if (verbose) {
+      println "Parsing " + configFile.absolutePath
+    }
+    configFile.eachLine { line ->
+      def values = line.split(':')
+      if (!line.startsWith('#') && values.length == 2) {
+        configArgs.push('--' + values[0].trim())
+        configArgs.push(values[1].trim())
+      }
+    }
+  }
+  if (verbose) {
+    println configArgs
+  }
+  return configArgs
+}
+
+private OptionAccessor parseCli(configArgs) {
+  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy\n      -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>',
+                                  stopAtNonOption: false)
   cliBuilder.with {
     h argName: 'help', longOpt: 'help', 'Show usage information and quit'
     l argName: 'level', longOpt: 'levels', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
@@ -133,33 +186,37 @@ private OptionAccessor parseCli() {
     s argName: 'file', longOpt: 'skip', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
       'Analysis result files to skip. For example "TodoComment" or "TodoComment.xml".'
     sf argName: 'regex', longOpt: 'skipfile', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
-      'Ignore issues affecting source files matching given regex. Example ".*/generated/.*".'
+       'Ignore issues affecting source files matching given regex. Example ".*/generated/.*".'
     t argName: 'dir', longOpt: 'resultdir', args: 1,
       'Target directory to place the IDEA inspection XML result files. Default: target/inspection-results'
-    i argName: 'dir', longOpt: 'ideahome', args: 1, required: true,
-      'IDEA installation home directory. Required'
+    i argName: 'dir', longOpt: 'ideahome', args: 1,
+      'IDEA installation home directory. Default: IDEA_HOME environment variable or "idea"'
     d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory'
-    p argName: 'file', longOpt: 'profile', args: 1, required: true,
-      'Use this inspection profile file located ".idea/inspectionProfiles". \nExample: "myprofile.xml"'
-    r argName: 'dir', longOpt: 'rootdir', args: 1, required: true,
-      'IDEA project root directory containing the ".idea" directory'
+    p argName: 'file', longOpt: 'profile', args: 1,
+      'Use this inspection profile file located ".idea/inspectionProfiles". \nExample: "myprofile.xml". Default: "Project_Default.xml"'
+    r argName: 'dir', longOpt: 'rootdir', args: 1,
+      'IDEA project root directory containing the ".idea" directory. Default: Working directory'
+    v argName: 'verbose', longOpt: 'verbose', args: 0,
+      'Enable verbose logging & debugging'
     //to argName: 'minutes', longOpt: 'timeout', args: 1,
     //  'Timeout in Minutes to wait for IDEA to complete the inspection. Default:'
   }
 
-  def opt = cliBuilder.parse(args)
+  def opt = cliBuilder.parse(configArgs)
 
-  if (!opt) System.exit(1); // will print usage automatically
+  if (!opt) {
+    System.exit(1)
+  }; // will print usage automatically
   if (opt.help) {
-      println ""
-      println "This tools runs IntelliJ IDEA inspection via command line and"
-      println "tries to parse the output. \n"
-      println "Example usage:"
-      println "  ./ideainspect.groovy -i ~/devel/idea -r . -p myinspections.xml \\"
-      println "     -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR"
-      println " "
-      cliBuilder.usage();
-      System.exit(1);
+    println ""
+    println "This tools runs IntelliJ IDEA inspection via command line and"
+    println "tries to parse the output. \n"
+    println "Example usage:"
+    println "  ./ideainspect.groovy -i ~/devel/idea -r . -p myinspections.xml \\"
+    println "     -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR"
+    println " "
+    cliBuilder.usage();
+    System.exit(1);
   }
   opt
 }

@@ -1,0 +1,11 @@
+= Changes
+
+[cols="1,5", options="header"]
+|===
+| Version | Change
+| 1.2 | Add support for configuration file +
+        Add debugging flag `-v` +
+        Replaced all mandatory CLI options with default values (root directory, IDEA home, Inspection profile name, ...)
+| 1.1 | Support for ignoring issues affecting specific source files using a regular expression  (Option `-sf`)
+| 1.0 | First release
+|===
