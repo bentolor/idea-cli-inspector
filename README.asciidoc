@@ -76,7 +76,11 @@ NOTE: Due to a limitation of IDEA itself it is not possible to run more than one
 === Configuration file base usage
 
 IDEA CLI Inspector supports configuration via a `.ideainspect` file in the project
-root directory. If you
+root directory. Below is a example:
+
+----
+include::.ideainspect[]
+----
 
 === Command line based usage
 For a full list of options please run `ideainspect.groovy -h`:
