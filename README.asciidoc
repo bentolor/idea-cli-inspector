@@ -200,6 +200,11 @@ the "Root JDK".
 
 To fix this error simply assign every module a SDK other than "Project SDK".
 
+.What shall I pass as IDEA home directory for Mac OSX?
+
+`/Applications/IntelliJ\ IDEA.app` should be the default installation folder.
+
+
 == Source code & Contributions
 
 The source code is located under https://github.com/bentolor/idea-cli-inspector.
