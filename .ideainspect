@@ -2,7 +2,7 @@
 levels: WARNING,ERROR,INFO
 
 # Inspection result files to skip. For example "TodoComment" or "TodoComment.xml".
-skip: TodoComment,Annoatator
+skip: TodoComment,Annotator
 
 # Ignore issues affecting source files matching given regex. Example ".*/generated/.*".
 skipfile: .*/generated/.*,src/main/Foo.java
@@ -11,7 +11,7 @@ skipfile: .*/generated/.*,src/main/Foo.java
 resultdir: target/inspection-results
 
 # IDEA installation home directory. Default: IDEA_HOME environment variable or "idea".
-ideahome: /home/ben/devel/idea
+# ideahome: /home/ben/devel/idea
 
 # Limit IDEA inspection to this directory
 # dir: .

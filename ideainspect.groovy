@@ -62,20 +62,14 @@ if (cliOpts.t) {
 // timeout
 // if (cliOpts.to) ideaTimeout = cliOpts.to.toInteger();
 // IDEA home
-def scriptExtension = (System.properties['os.name'].toLowerCase().contains('windows')) ? ".bat" : ".sh"
-def pathSep = File.separator
-def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
-def ideaPath = new File(ideaHome + pathSep + "bin" + pathSep + "idea" + scriptExtension)
-assertPath(ideaPath, "IDEA Installation directory",
-           "Use a IDEA_HOME environment variable or the `ideahome` property in `.ideainspect` \n" +
-           "or the `-i` command line option to point me to a valid IntelliJ installation")
+File ideaPath = findIdeaExecutable(cliOpts)
 // Passed project root Directory or working directory
 def rootDir =  cliOpts.r ? new File(cliOpts.r) : Paths.get(".").toAbsolutePath().normalize().toFile()
 def dotIdeaDir = new File(rootDir, ".idea")
 assertPath(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` property to the location of your `.idea` project")
 // Inspection Profile
 def profileName = cliOpts.p ?: "Project_Default.xml"
-def profilePath = new File(dotIdeaDir.path + pathSep + "inspectionProfiles" + pathSep + profileName)
+def profilePath = new File(dotIdeaDir.path + File.separator + "inspectionProfiles" + File.separator + profileName)
 assertPath(profilePath, "IDEA inspection profile file")
 
 // Prepare result directory
@@ -221,6 +215,28 @@ private OptionAccessor parseCli(configArgs) {
   opt
 }
 
+private File findIdeaExecutable(OptionAccessor cliOpts) {
+  def platform = System.properties['os.name'], scriptPath
+  def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
+
+  switch (platform) {
+    case ~/^Windows.*/:
+      scriptPath =  "bin" + File.separator + "idea.bat"
+      break;
+    case "Mac OS X":
+      scriptPath = "Contents/MacOS/idea
+      break;
+    default:
+      scriptPath = "bin/idea.sh"
+      break;
+  }
+
+  def ideaExecutable = new File(ideaHome + File.separator + scriptPath)
+  assertPath(ideaExecutable, "IDEA Installation directory",
+             "Use a IDEA_HOME environment variable or the `ideahome` property in `.ideainspect` \n" +
+                     "or the `-i` command line option to point me to a valid IntelliJ installation")
+  ideaExecutable
+}
 
 private analyzeResult(File resultPath, List<String> acceptedLeves,
                       List skipResults, List skipIssueFilesRegex) {
