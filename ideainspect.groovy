@@ -224,7 +224,7 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
       scriptPath =  "bin" + File.separator + "idea.bat"
       break;
     case "Mac OS X":
-      scriptPath = "Contents/MacOS/idea/bin/idea"
+      scriptPath = "Contents/MacOS/idea
       break;
     default:
       scriptPath = "bin/idea.sh"
