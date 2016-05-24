@@ -26,7 +26,7 @@ import groovy.io.FileType
 import org.apache.commons.cli.Option
 import java.nio.file.Paths
 
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.2 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.4 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
