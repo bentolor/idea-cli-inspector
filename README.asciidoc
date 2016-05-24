@@ -89,7 +89,8 @@ For a full list of options please run `ideainspect.groovy -h`:
 usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
  -d,--dir <dir>           Limit IDEA inspection to this directory
  -h,--help                Show usage information and quit
- -i,--ideahome <dir>      IDEA installation home directory. Required
+ -i,--ideahome <dir>      IDEA or Android Studio 
+                          installation home directory. Required
  -l,--levels <level>      Levels to look for. Default: WARNING,ERROR
  -p,--profile <file>      Use this inspection profile file located
                           ".idea/inspectionProfiles".

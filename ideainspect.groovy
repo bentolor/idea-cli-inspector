@@ -184,7 +184,7 @@ private OptionAccessor parseCli(configArgs) {
     t argName: 'dir', longOpt: 'resultdir', args: 1,
       'Target directory to place the IDEA inspection XML result files. Default: target/inspection-results'
     i argName: 'dir', longOpt: 'ideahome', args: 1,
-      'IDEA installation home directory. Default: IDEA_HOME environment variable or "idea"'
+      'IDEA or Android Studio installation home directory. Default: IDEA_HOME environment variable or "idea"'
     d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory'
     p argName: 'file', longOpt: 'profile', args: 1,
       'Use this inspection profile file located ".idea/inspectionProfiles". \nExample: "myprofile.xml". Default: "Project_Default.xml"'
@@ -218,16 +218,20 @@ private OptionAccessor parseCli(configArgs) {
 private File findIdeaExecutable(OptionAccessor cliOpts) {
   def platform = System.properties['os.name'], scriptPath
   def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
+  def executable = "idea"
+  if(ideaHome.contains("Android")){
+  	executable = "studio"
+  }
 
   switch (platform) {
     case ~/^Windows.*/:
-      scriptPath =  "bin" + File.separator + "idea.bat"
+      scriptPath =  "bin" + File.separator + executable + ".bat"
       break;
     case "Mac OS X":
-      scriptPath = "Contents/MacOS/idea
+      scriptPath = "Contents/MacOS/" + executable
       break;
     default:
-      scriptPath = "bin/idea.sh"
+      scriptPath = "bin/" + executable + ".sh"
       break;
   }
 
