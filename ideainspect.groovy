@@ -184,7 +184,7 @@ private OptionAccessor parseCli(configArgs) {
     t argName: 'dir', longOpt: 'resultdir', args: 1,
       'Target directory to place the IDEA inspection XML result files. Default: target/inspection-results'
     i argName: 'dir', longOpt: 'ideahome', args: 1,
-      'IDEA installation home directory. Default: IDEA_HOME environment variable or "idea"'
+      'IDEA or Android Studio installation home directory. Default: IDEA_HOME environment variable or "idea"'
     d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory'
     p argName: 'file', longOpt: 'profile', args: 1,
       'Use this inspection profile file located ".idea/inspectionProfiles". \nExample: "myprofile.xml". Default: "Project_Default.xml"'
