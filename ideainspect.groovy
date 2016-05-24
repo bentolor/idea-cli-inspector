@@ -218,16 +218,20 @@ private OptionAccessor parseCli(configArgs) {
 private File findIdeaExecutable(OptionAccessor cliOpts) {
   def platform = System.properties['os.name'], scriptPath
   def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
+  def executable = "idea"
+  if(ideaHome.contains("Android")){
+  	executable = "studio"
+  }
 
   switch (platform) {
     case ~/^Windows.*/:
-      scriptPath =  "bin" + File.separator + "idea.bat"
+      scriptPath =  "bin" + File.separator + executable + ".bat"
       break;
     case "Mac OS X":
-      scriptPath = "Contents/MacOS/idea
+      scriptPath = "Contents/MacOS/" + executable
       break;
     default:
-      scriptPath = "bin/idea.sh"
+      scriptPath = "bin/" + executable + ".sh"
       break;
   }
 
