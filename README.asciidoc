@@ -201,6 +201,12 @@ the "Root JDK".
 
 To fix this error simply assign every module a SDK other than "Project SDK".
 
+.The analysis seems to produce different results on subsequent runs on the same sources (esp. JavaScript)
+
+This seems to be an issue with the IDEA caches which IntelliJ keeps i.e. under 
+`.IntelliJ2016.1/system`. Try if deleting this directory prior to executing 
+the analysis runs produces stable results.
+
 .What shall I pass as IDEA home directory for Mac OSX?
 
 `/Applications/IntelliJ\ IDEA.app` should be the default installation folder.
