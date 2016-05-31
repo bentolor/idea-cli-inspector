@@ -88,6 +88,7 @@ For a full list of options please run `ideainspect.groovy -h`:
 ----
 usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
  -d,--dir <dir>           Limit IDEA inspection to this directory
+                          Overrides the scope argument
  -h,--help                Show usage information and quit
  -i,--ideahome <dir>      IDEA or Android Studio 
                           installation home directory. Required
@@ -97,10 +98,12 @@ usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
                           Example: "myprofile.xml"
  -r,--rootdir <dir>       IDEA project root directory containing the
                           ".idea" directory
- -s,--skip <file>         Analysis result files to skip. For example
-                          "TodoComment" or "TodoComment.xml".
- -sf,--skipfile <regex>   Ignore issues affecting source files matching
-                          given regex. Example ".*/generated/.*".
+ -li,--lib <dir>          The path to the folder containing
+                          "idea.properties" Info can be found at:
+                          http://tools.android.com/tech-docs/configuration
+ -sc,--scope <string>     Perform analysis with scope name. These are
+                          usually set in IDEA or Android Studio. The
+                          scope file should be placed in .idea/scopes/
  -t,--resultdir <dir>     Target directory to place the IDEA inspection
                           XML result files. Default:
                           target/inspection-results
@@ -111,9 +114,8 @@ usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
     $ groovy ideainspect.groovy \
         -i ~/devel/idea \
         -r ~/projects/p1 \
-        -p myinspections.xml
-        -d server
-        -s unused,Annotator,TodoComment.xml
+        -p myinspections.xml \
+        -d server \
         -l ERROR
 
 This looks for a IntelliJ installation in `~/devel/idea`, tries
@@ -125,9 +127,6 @@ your project.
 
 The IDEA inspection run will produce a set of `.xml` files. The amount,
 levels and result is based on the inspection profile you passed.
-Option `-s` tells to skip & ignore the warnings contained in the
-inspection result files `unused.xml`, `Annotator.xml` and
-`TodoComment.xml`. You can ommit the `.xml` suffix for convenience.
 
 By default it will then look for entries marked as `[WARNING]` or
 `[ERROR]` within the remaining inspection result report files.
