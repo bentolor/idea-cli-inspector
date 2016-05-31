@@ -1,5 +1,4 @@
 #!/usr/bin/env groovy
-
 /*
  * Copyright 2015 Benjamin Schmid
  *
@@ -26,13 +25,11 @@ import groovy.io.FileType
 import org.apache.commons.cli.Option
 import java.nio.file.Paths
 
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.4 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.5 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
 def acceptedLeves = ["[WARNING]", "[ERROR]"]
-def skipResults = []
-def skipIssueFilesRegex = []
 def ideaTimeout = 20 // broken - has no effect
 verbose = false
 
@@ -46,14 +43,6 @@ def OptionAccessor cliOpts = parseCli((configOpts << args).flatten())
 if (cliOpts.l) {
   acceptedLeves.clear()
   cliOpts.ls.each { level -> acceptedLeves << "[" + level + "]" }
-}
-// Skip result XML files
-if (cliOpts.s) {
-  cliOpts.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
-}
-// Skip issues affecting given file name regex
-if (cliOpts.sf) {
-  cliOpts.sfs.each { skipRegex -> skipIssueFilesRegex << skipRegex }
 }
 // target directory
 if (cliOpts.t) {
@@ -85,13 +74,20 @@ if (!resultPath.mkdirs()) {
 }
 
 //
+// --- Running VMOptions Modifier
+//
+if(cliOpts.sc){
+  modifyIdeaProps(cliOpts)
+}
+
+//
 // --- Actually running IDEA
 //
 
 //  ~/projects/dashboard.git/. ~/projects/dashboard.git/.idea/inspectionProfiles/bens_idea15_2015_11.xml /tmp/ -d server
 def ideaArgs = [ideaPath.path, "inspect", rootDir.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
 if (cliOpts.d) {
-  ideaArgs << "-d" << cliOpts.d
+  ideaArgs << "-d" << rootDir.absolutePath + "/" + cliOpts.d
 }
 
 println "#"
@@ -100,6 +96,8 @@ println "#"
 println "Executing: " + ideaArgs.join(" ")
 
 def processBuilder = new ProcessBuilder(ideaArgs)
+def env = processBuilder.environment();
+env.put("idea.analyze.scope", "BuilderTREND")
 processBuilder.redirectErrorStream(true)
 processBuilder.directory(rootDir)  // <--
 def ideaProcess = processBuilder.start()
@@ -113,7 +111,7 @@ if (exitValue != 0) {
 //
 // --- Now lets look on the results
 //
-analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
+analyzeResult(resultPath, acceptedLeves)
 
 //
 //  --- Helper functions
@@ -177,15 +175,14 @@ private OptionAccessor parseCli(configArgs) {
     h argName: 'help', longOpt: 'help', 'Show usage information and quit'
     l argName: 'level', longOpt: 'levels', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
       'Levels to look for. Default: WARNING,ERROR'
-    s argName: 'file', longOpt: 'skip', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
-      'Analysis result files to skip. For example "TodoComment" or "TodoComment.xml".'
-    sf argName: 'regex', longOpt: 'skipfile', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
-       'Ignore issues affecting source files matching given regex. Example ".*/generated/.*".'
+    sc argName: 'string', longOpt: 'scope', args: 1,
+      'The name of the scope to be processed'
     t argName: 'dir', longOpt: 'resultdir', args: 1,
       'Target directory to place the IDEA inspection XML result files. Default: target/inspection-results'
     i argName: 'dir', longOpt: 'ideahome', args: 1,
       'IDEA or Android Studio installation home directory. Default: IDEA_HOME environment variable or "idea"'
     d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory'
+    li argName: 'dir', longOpt: 'lib', args: 1, 'The directory contains the *.vmoptions file'
     p argName: 'file', longOpt: 'profile', args: 1,
       'Use this inspection profile file located ".idea/inspectionProfiles". \nExample: "myprofile.xml". Default: "Project_Default.xml"'
     r argName: 'dir', longOpt: 'rootdir', args: 1,
@@ -242,15 +239,38 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
   ideaExecutable
 }
 
-private analyzeResult(File resultPath, List<String> acceptedLeves,
-                      List skipResults, List skipIssueFilesRegex) {
+private modifyIdeaProps(OptionAccessor cliOpts){
+  println " "
+  println "#"
+  println "# Modifying idea.properties for scope: $cliOpts.sc"
+
+  def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
+  def libraryHome = cliOpts.li.replace("~", System.getProperty("user.home"))
+  def ideaPropsFile = new File(libraryHome + "/idea.properties")
+  def outputLines = new ArrayList<String>();
+  assertPath(ideaPropsFile, "Idea Properties File",
+              "Use the `lib` proeprty in `.ideainspect` or the `-li` command line option to point\n" +
+                      "to a valid preferences folder.")
+  def lines = ideaPropsFile.text.split(System.getProperty("line.separator"))
+  for(line in lines){
+    if(!line.contains("idea.analyze.scope")){
+      outputLines.add(line);
+    }
+  }
+  outputLines.add("idea.analyze.scope=" + cliOpts.sc)
+  ideaPropsFile.newWriter().withWriter { w ->
+    outputLines.each { l ->
+      w << l << System.getProperty("line.separator")
+    }
+  }
+}
+
+private analyzeResult(File resultPath, List<String> acceptedLeves) {
   println " "
   println "#"
   println "# Inspecting produced result files in $resultPath"
   println "#"
   println "# Looking for levels    : $acceptedLeves"
-  println "# Ignoring result files : $skipResults"
-  println "# Ignoring source files : $skipIssueFilesRegex"
 
   def allGood = true;
 
@@ -267,17 +287,10 @@ private analyzeResult(File resultPath, List<String> acceptedLeves,
     def fileIssues = []
     def xmlFileName = file.name
 
-    if (skipResults.contains(xmlFileName.replace(".xml", ""))) {
-      println "--- Skipping $xmlFileName"
-      return
-    }
-
     xmlDocument.problem.each { problem ->
       String severity = problem.problem_class.@severity
       String affectedFile = problem.file.text()
-      boolean fileShouldBeIgnored = false
-      skipIssueFilesRegex.each { regex -> fileShouldBeIgnored = (fileShouldBeIgnored || affectedFile.matches(regex)) }
-      if (acceptedLeves.contains(severity) && !fileShouldBeIgnored) {
+      if (acceptedLeves.contains(severity)) {
         String problemDesc = problem.description.text()
         String line = problem.line.text()
         fileIssues << "$severity $affectedFile:$line -- $problemDesc";
