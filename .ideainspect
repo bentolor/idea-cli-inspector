@@ -1,13 +1,19 @@
 # Levels to look for. Default: WARNING,ERROR
 levels: WARNING,ERROR,INFO
 
+# Inspection result files to skip. For example "TodoComment" or "TodoComment.xml".
+skip: TodoComment, Annotator
+
+# Ignore issues affecting source files matching given regex. Example ".*/generated/.*"
+skipfile: .*/generated/.*,src/main/Foo.java
+
 # Target directory to place the IDEA inspection XML result files. Default: target/inspection-results
 resultdir: target/inspection-results
 
 # IDEA installation home directory. Default: IDEA_HOME environment variable or "idea".
 # ideahome: /home/ben/devel/idea
 
-# Limit IDEA inspection to this directory
+# Limit IDEA inspection to this directory (This overrides scoping)
 # dir: .
 
 # Use this inspection profile file located ".idea/inspectionProfiles".
@@ -16,9 +22,9 @@ resultdir: target/inspection-results
 # IDEA project root directory containing the ".idea" directory
 # rootdir: .
 
-# Library folder containing idea.properties More info at:
+# Full path to the local idea.properties file. More info at:
 # http://tools.android.com/tech-docs/configuration
-# lib: ~/Library/Preferences/AndroidStudio2.1/
+# iprops: ~/Library/Preferences/AndroidStudio2.1/
 
 # Custom IDEA Scope name
-# scope: MyScope
+# scope: MyScopeName
