@@ -98,8 +98,12 @@ usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
                           Example: "myprofile.xml"
  -r,--rootdir <dir>       IDEA project root directory containing the
                           ".idea" directory
- -li,--lib <dir>          The path to the folder containing
-                          "idea.properties" Info can be found at:
+ -s,--skip <file>         Analysis result files to skip. For example
+                          "TodoComment" or "TodoComment.xml".
+ -sf,--skipfile <regex>   Ignore issues affecting source files matching
+                          given regex. Example ".*/generated/.*".
+ -ip,--iprops <dir>       The full path to the "idea.properties" file.
+                          Info can be found at:
                           http://tools.android.com/tech-docs/configuration
  -sc,--scope <string>     Perform analysis with scope name. These are
                           usually set in IDEA or Android Studio. The
@@ -116,17 +120,21 @@ usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
         -r ~/projects/p1 \
         -p myinspections.xml \
         -d server \
+        -s unused,Annotator,TodoComment.xml \
         -l ERROR
 
 This looks for a IntelliJ installation in `~/devel/idea`, tries
 to perform a CLI-based code inspection run on the IDEA
-project `~/projects/p1/.idea` with a inspection profile
+project `~/projects/p1/.idea` with an inspection profile
 `~/projects/p1/.idea/inspectionProfiles/myinspections.xml`
 limiting the inspection run to the subdirectory `server` within
 your project.
 
 The IDEA inspection run will produce a set of `.xml` files. The amount,
 levels and result is based on the inspection profile you passed.
+Option `-s` tells to skip & ignore the warnings contained in the
+inspection result files `unused.xml`, `Annotator.xml` and
+`TodoComment.xml`. You can ommit the `.xml` suffix for convenience.
 
 By default it will then look for entries marked as `[WARNING]` or
 `[ERROR]` within the remaining inspection result report files.

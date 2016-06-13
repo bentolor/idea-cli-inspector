@@ -1,4 +1,5 @@
 #!/usr/bin/env groovy
+
 /*
  * Copyright 2015 Benjamin Schmid
  *
@@ -30,6 +31,8 @@ println "= IntellIJ IDEA Code Analysis Wrapper - v1.5 - @bentolor"
 // Defaults
 def resultDir = "target/inspection-results"
 def acceptedLeves = ["[WARNING]", "[ERROR]"]
+def skipResults = []
+def skipIssueFilesRegex = []
 def ideaTimeout = 20 // broken - has no effect
 verbose = false
 
@@ -43,6 +46,14 @@ def OptionAccessor cliOpts = parseCli((configOpts << args).flatten())
 if (cliOpts.l) {
   acceptedLeves.clear()
   cliOpts.ls.each { level -> acceptedLeves << "[" + level + "]" }
+}
+// Skip result XML files
+if (cliOpts.s) {
+  cliOpts.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
+}
+// Skip issues affecting given file name regex
+if (cliOpts.sf) {
+  cliOpts.sfs.each { skipRegex -> skipIssueFilesRegex << skipRegex }
 }
 // target directory
 if (cliOpts.t) {
@@ -60,7 +71,6 @@ assertPath(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` prope
 def profileName = cliOpts.p ?: "Project_Default.xml"
 def profilePath = new File(dotIdeaDir.path + File.separator + "inspectionProfiles" + File.separator + profileName)
 assertPath(profilePath, "IDEA inspection profile file")
-// IDEA Properties file
 
 // Prepare result directory
 def resultPath = new File(resultDir);
@@ -119,7 +129,7 @@ if(cliOpts.sc){
 //
 // --- Now lets look on the results
 //
-analyzeResult(resultPath, acceptedLeves)
+analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
 
 //
 //  --- Helper functions
@@ -304,12 +314,15 @@ private cleanUpIdeaProps(OptionAccessor cliOpts){
   println "# idea-cli-inspector: CLEANUP END"
 }
 
-private analyzeResult(File resultPath, List<String> acceptedLeves) {
+private analyzeResult(File resultPath, List<String> acceptedLeves,
+                      List skipResults, List skipIssueFilesRegex) {
   println " "
   println "#"
   println "# Inspecting produced result files in $resultPath"
   println "#"
   println "# Looking for levels    : $acceptedLeves"
+  println "# Ignoring result files : $skipResults"
+  println "# Ignoring source files : $skipIssueFilesRegex"
 
   def allGood = true;
 
@@ -326,10 +339,17 @@ private analyzeResult(File resultPath, List<String> acceptedLeves) {
     def fileIssues = []
     def xmlFileName = file.name
 
+    if (skipResults.contains(xmlFileName.replace(".xml", ""))) {
+      println "--- Skipping $xmlFileName"
+      return
+    }
+
     xmlDocument.problem.each { problem ->
       String severity = problem.problem_class.@severity
       String affectedFile = problem.file.text()
-      if (acceptedLeves.contains(severity)) {
+      boolean fileShouldBeIgnored = false
+      skipIssueFilesRegex.each { regex -> fileShouldBeIgnored = (fileShouldBeIgnored || affectedFile.matches(regex)) }
+      if (acceptedLeves.contains(severity) && !fileShouldBeIgnored) {
         String problemDesc = problem.description.text()
         String line = problem.line.text()
         fileIssues << "$severity $affectedFile:$line -- $problemDesc";
