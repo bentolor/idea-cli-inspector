@@ -2,9 +2,9 @@
 levels: WARNING,ERROR,INFO
 
 # Inspection result files to skip. For example "TodoComment" or "TodoComment.xml".
-skip: TodoComment, Annotator
+skip: TodoComment,Annotator
 
-# Ignore issues affecting source files matching given regex. Example ".*/generated/.*"
+# Ignore issues affecting source files matching given regex. Example ".*/generated/.*".
 skipfile: .*/generated/.*,src/main/Foo.java
 
 # Target directory to place the IDEA inspection XML result files. Default: target/inspection-results
@@ -24,7 +24,7 @@ resultdir: target/inspection-results
 
 # Full path to the local idea.properties file. More info at:
 # http://tools.android.com/tech-docs/configuration
-# iprops: ~/Library/Preferences/AndroidStudio2.1/
+# iprops: /Users/Shared/User/Library/Preferences/AndroidStudio2.1/idea.properties
 
 # Custom IDEA Scope name
 # scope: MyScopeName
