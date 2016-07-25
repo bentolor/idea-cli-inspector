@@ -219,7 +219,7 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
   def platform = System.properties['os.name'], scriptPath
   def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
   def executable = "idea"
-  if(ideaHome.contains("Android")){
+  if(ideaHome.toLowerCase().contains("android")){
   	executable = "studio"
   }
 
