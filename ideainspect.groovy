@@ -26,7 +26,7 @@ import groovy.io.FileType
 import org.apache.commons.cli.Option
 import java.nio.file.Paths
 
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.4 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.5 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
@@ -85,6 +85,13 @@ if (!resultPath.mkdirs()) {
 }
 
 //
+// --- Running IDEA Properties Modifier
+//
+if(cliOpts.sc){
+  modifyIdeaProps(cliOpts)
+}
+
+//
 // --- Actually running IDEA
 //
 
@@ -100,6 +107,9 @@ println "#"
 println "Executing: " + ideaArgs.join(" ")
 
 def processBuilder = new ProcessBuilder(ideaArgs)
+if(cliOpts.sc){
+  processBuilder.environment().put("idea.analyze.scope", cliOpts.sc)
+}
 processBuilder.redirectErrorStream(true)
 processBuilder.directory(rootDir)  // <--
 def ideaProcess = processBuilder.start()
@@ -110,6 +120,12 @@ if (exitValue != 0) {
   fail("IDEA Process returned with an unexpected return code of $exitValue")
 }
 
+//
+// --- Clean up time
+//
+if(cliOpts.sc){
+  cleanUpIdeaProps(cliOpts)
+}
 //
 // --- Now lets look on the results
 //
@@ -180,12 +196,15 @@ private OptionAccessor parseCli(configArgs) {
     s argName: 'file', longOpt: 'skip', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
       'Analysis result files to skip. For example "TodoComment" or "TodoComment.xml".'
     sf argName: 'regex', longOpt: 'skipfile', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
-       'Ignore issues affecting source files matching given regex. Example ".*/generated/.*".'
+      'Ignore issues affecting source files matching given regex. Example ".*/generated/.*".'
+    sc argName: 'string', longOpt: 'scope', args: 1,
+      'The name of the scope to be processed'
     t argName: 'dir', longOpt: 'resultdir', args: 1,
       'Target directory to place the IDEA inspection XML result files. Default: target/inspection-results'
     i argName: 'dir', longOpt: 'ideahome', args: 1,
       'IDEA or Android Studio installation home directory. Default: IDEA_HOME environment variable or "idea"'
     d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory'
+    ip argName: 'file', longOpt: 'iprops', args: 1, 'The full path to local idea.properties'
     p argName: 'file', longOpt: 'profile', args: 1,
       'Use this inspection profile file located ".idea/inspectionProfiles". \nExample: "myprofile.xml". Default: "Project_Default.xml"'
     r argName: 'dir', longOpt: 'rootdir', args: 1,
@@ -240,6 +259,59 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
              "Use a IDEA_HOME environment variable or the `ideahome` property in `.ideainspect` \n" +
                      "or the `-i` command line option to point me to a valid IntelliJ installation")
   ideaExecutable
+}
+
+private modifyIdeaProps(OptionAccessor cliOpts){
+  println "#"
+  println "# idea-cli-inspector: GENERATED START"
+  println "#   IDEA currently does currently not allow to pass the desired inspection scope as program parameter"
+  println "#   but only as property. To reflect a command-line based inspection run this entry was updated/added."
+  println "#   NOTE: This property only affect command line based inspection runs"
+
+  def ideaPropsFile = new File(cliOpts.ip)
+  def outputLines = new ArrayList<String>()
+  File ideaPropsFileCopy
+
+  if(cliOpts.li.exists()){
+    // If the file already exists we copy it
+    ideaPropsFileCopy = new File(cliOpts.ip + ".copy")
+    Files.copy(file: ideaPropsFile, tofile: ideaPropsFileCopy)
+    lines = ideaPropsFile.text.split(System.getProperty("line.separator"))
+    for(line in lines){
+      if(!line.contains("idea.analyze.scope")){
+        outputLines.add(line)
+      }
+    }
+  }
+  // If the file does not exist, it is instantiated when written to
+
+  outputLines.add("idea.analyze.scope=" + cliOpts.sc)
+  ideaPropsFile.newWriter().withWriter { w ->
+    outputLines.each { l ->
+      w << l << System.getProperty("line.separator")
+    }
+  }
+
+  println "idea.analyze.scope=$cliOpts.sc"
+  println "# idea-cli-inspector: GENERATED END"
+}
+
+private cleanUpIdeaProps(OptionAccessor cliOpts){
+  println "#"
+  println "# idea-cli-inspector: CLEANUP START"
+  println "#   IDEA currently does currently not allow to pass the desired inspection scope as program parameter"
+  println "#   but only as property. To reflect a command-line based inspection run this entry was updated/added."
+  println "#   Now the file will be restored to its original state, or if it did not exist, will be deleted."
+  println "#   NOTE: This property only affect command line based inspection runs"
+
+  def ideaPropsFile = new File(cliOpts.ip)
+  def ideaPropsFileCopy = new File(cliOpts.ip + ".copy")
+  ideaPropsFile.delete()
+  if(ideaPropsFileCopy.exists()){
+    ideaPropsFileCopy.renameTo(ideaPropsFile)
+  }
+
+  println "# idea-cli-inspector: CLEANUP END"
 }
 
 private analyzeResult(File resultPath, List<String> acceptedLeves,
