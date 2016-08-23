@@ -17,7 +17,7 @@ resultdir: target/inspection-results
 # dir: .
 
 # Use this inspection profile file located ".idea/inspectionProfiles".
-# profile: Project_Default.xml
+profile: bentolor_inspections.xml
 
 # IDEA project root directory containing the ".idea" directory
 # rootdir: .
@@ -27,4 +27,4 @@ resultdir: target/inspection-results
 # iprops: /Users/Shared/User/Library/Preferences/AndroidStudio2.1/idea.properties
 
 # Custom IDEA Scope name
-# scope: MyScopeName
+scope: inspector-code
