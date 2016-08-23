@@ -207,7 +207,7 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
   def platform = System.properties['os.name'], scriptPath
   def ideaHome = getIdeaHome(cliOpts)
   def executable = "idea"
-  if (ideaHome.toLowerCase().contains("Android")) executable = "studio"
+  if (ideaHome.toLowerCase().contains("android")) executable = "studio"
 
   switch (platform) {
     case ~/^Windows.*/:
