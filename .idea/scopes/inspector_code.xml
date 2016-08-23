@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="inspector-code" pattern="file:ideainspect.groovy||file:LICENSE.txt||file:CHANGES.asciidoc" />
+</component>
