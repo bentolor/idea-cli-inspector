@@ -26,3 +26,6 @@ atlassian-ide-plugin.xml
 /out/
 /target/
 
+# Custom link to your idea installation
+/idea
+
