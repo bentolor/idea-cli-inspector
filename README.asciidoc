@@ -88,6 +88,7 @@ For a full list of options please run `ideainspect.groovy -h`:
 ----
 usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
  -d,--dir <dir>           Limit IDEA inspection to this directory
+                          Overrides the scope argument
  -h,--help                Show usage information and quit
  -i,--ideahome <dir>      IDEA or Android Studio 
                           installation home directory. Required
@@ -101,6 +102,12 @@ usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
                           "TodoComment" or "TodoComment.xml".
  -sf,--skipfile <regex>   Ignore issues affecting source files matching
                           given regex. Example ".*/generated/.*".
+ -ip,--iprops <dir>       The full path to the "idea.properties" file.
+                          Info can be found at:
+                          http://tools.android.com/tech-docs/configuration
+ -sc,--scope <string>     Perform analysis with scope name. These are
+                          usually set in IDEA or Android Studio. The
+                          scope file should be placed in .idea/scopes/
  -t,--resultdir <dir>     Target directory to place the IDEA inspection
                           XML result files. Default:
                           target/inspection-results
@@ -111,14 +118,14 @@ usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
     $ groovy ideainspect.groovy \
         -i ~/devel/idea \
         -r ~/projects/p1 \
-        -p myinspections.xml
-        -d server
-        -s unused,Annotator,TodoComment.xml
+        -p myinspections.xml \
+        -d server \
+        -s unused,Annotator,TodoComment.xml \
         -l ERROR
 
 This looks for a IntelliJ installation in `~/devel/idea`, tries
 to perform a CLI-based code inspection run on the IDEA
-project `~/projects/p1/.idea` with a inspection profile
+project `~/projects/p1/.idea` with an inspection profile
 `~/projects/p1/.idea/inspectionProfiles/myinspections.xml`
 limiting the inspection run to the subdirectory `server` within
 your project.

@@ -3,6 +3,7 @@ import groovy.io.FileType
 import groovy.transform.Field
 import org.apache.commons.cli.Option
 
+import java.nio.file.Files
 import java.nio.file.Paths
 
 /*
@@ -26,7 +27,7 @@ import java.nio.file.Paths
     Note to the reader:
      This is my very first Groovy script. Please be nice.
 */
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.4 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.5 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
@@ -80,23 +81,33 @@ if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absol
 def ideaArgs = [ideaPath.path, "inspect", rootDir.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
 if (cliOpts.d) ideaArgs << "-d" << cliOpts.d
 
-println "#"
+// Did user define a Analysis "Scope"? We need a dirty workaround
+File origPropFile = applyScopeViaPropFile(cliOpts)
+
+println "\n#"
 println "# Running IDEA IntelliJ Inspection"
 println "#"
 println "Executing: " + ideaArgs.join(" ")
+def exitValue = 0
 if (!cliOpts.n) {
   def processBuilder = new ProcessBuilder(ideaArgs)
   processBuilder.redirectErrorStream(true)
-  processBuilder.directory(rootDir)  // <--
+  processBuilder.directory(rootDir)
 
+  println "~" * 80
   def ideaProcess = processBuilder.start()
   ideaProcess.consumeProcessOutput((OutputStream) System.out, System.err)
   ideaProcess.waitForOrKill(1000 * 60 * ideaTimeout)
-  def exitValue = ideaProcess.exitValue()
-  if (exitValue != 0) fail("IDEA process returned with an unexpected return code of $exitValue")
+  exitValue = ideaProcess.exitValue()
+  println "~" * 80
 } else {
   println("Dry-run: Not starting IDEA process")
 }
+
+// Scope workaround: Clean up time
+if (cliOpts.sc) cleanupIdeaProps(cliOpts, origPropFile)
+
+if (exitValue != 0) fail("IDEA process returned with an unexpected return code of $exitValue")
 
 //
 // --- Now lets look on the results
@@ -106,21 +117,6 @@ analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
 //
 //  --- Helper functions
 //
-
-private void assertPath(File profilePath, String description, String hint = null) {
-  if (!profilePath.exists()) {
-    println description + " " + profilePath.path + " not found!"
-    if (hint) println hint
-    System.exit(1)
-  }
-}
-
-private void fail(String message) {
-  println "FATAL ERROR: " + message
-  println "             Aborting."
-  System.exit(1)
-}
-
 private List<String> parseConfigFile() {
   // Parse root dir with minimal CliBuilder
   def cliBuilder = new CliBuilder()
@@ -156,29 +152,34 @@ private List<String> parseConfigFile() {
 }
 
 private OptionAccessor parseCli(List<String> configArgs) {
-  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy\n      -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>',
+  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy [options]',
                                   stopAtNonOption: false)
   cliBuilder.with {
     h argName: 'help', longOpt: 'help', 'Show usage information and quit'
     l argName: 'level', longOpt: 'levels', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
       'Levels to look for. Default: WARNING,ERROR'
     s argName: 'file', longOpt: 'skip', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
-      'Analysis result files to skip. For example "TodoComment" or "TodoComment.xml".'
+      'Analysis result files to skip. For example `TodoComment` or `TodoComment.xml`.'
     sf argName: 'regex', longOpt: 'skipfile', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
-       'Ignore issues affecting source files matching given regex. Example ".*/generated/.*".'
+       'Ignore issues affecting source files matching given regex. Example: `.*/generated/.*`.'
+    sc argName: 'string', longOpt: 'scope', args: 1,
+       'The name of the scope to be processed'
     t argName: 'dir', longOpt: 'resultdir', args: 1,
-      'Target directory to place the IDEA inspection XML result files. Default: target/inspection-results'
+      'Target directory to place the IDEA inspection XML result files. \nDefault: `target/inspection-results`'
     i argName: 'dir', longOpt: 'ideahome', args: 1,
-      'IDEA or Android Studio installation home directory. Default: IDEA_HOME environment variable or "idea"'
+      'IDEA or Android Studio installation home directory. Default: IDEA_HOME env var or `idea`'
     d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory'
+    ip argName: 'file', longOpt: 'iprops', args: 1, 'Full path to your `idea.properties`. Only required if 1) you use --scope and 2) ' +
+            'file is not located under in the default. \nDefault: `<ideahome>/idea/bin/idea.properties`'
     p argName: 'file', longOpt: 'profile', args: 1,
-      'Use this inspection profile file located ".idea/inspectionProfiles". \nExample: "myprofile.xml". Default: "Project_Default.xml"'
+      'Use this inspection profile file located under `.idea/inspectionProfiles`. \nDefault: `Project_Default' +
+              '.xml`'
     r argName: 'dir', longOpt: 'rootdir', args: 1,
-      'IDEA project root directory containing the ".idea" directory. Default: Working directory'
+      'IDEA project root directory containing the `.idea` directory. Default: Working directory'
     v argName: 'verbose', longOpt: 'verbose', args: 0,
-      'Enable verbose logging & debugging'
+      'Enable verbose logging'
     n argName: 'dry-run', longOpt: 'dry-run', args: 0,
-      'Dry-run: Do not start IDEA, but run parsing as usual'
+      'Dry-run: Do not start IDEA, but run parsing'
     //to argName: 'minutes', longOpt: 'timeout', args: 1,
     //  'Timeout in Minutes to wait for IDEA to complete the inspection. Default:'
   }
@@ -189,13 +190,13 @@ private OptionAccessor parseCli(List<String> configArgs) {
     System.exit(1)
   }; // will print usage automatically
   if (opt.help) {
-    println ""
-    println "This tools runs IntelliJ IDEA inspection via command line and"
+    println "\nThis tools runs IntelliJ IDEA inspection via command line and"
     println "tries to parse the output. \n"
     println "Example usage:"
     println "  ./ideainspect.groovy -i ~/devel/idea -r . -p myinspections.xml \\"
-    println "     -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR"
-    println " "
+    println "     -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR\n"
+    println "For more convenience you can pass all options in a `.ideainspect` file"
+    println "instead of passing it via command line\n"
     cliBuilder.usage();
     System.exit(1);
   }
@@ -204,9 +205,9 @@ private OptionAccessor parseCli(List<String> configArgs) {
 
 private File findIdeaExecutable(OptionAccessor cliOpts) {
   def platform = System.properties['os.name'], scriptPath
-  def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
+  def ideaHome = getIdeaHome(cliOpts)
   def executable = "idea"
-  if (ideaHome.contains("Android")) executable = "studio"
+  if (ideaHome.toLowerCase().contains("Android")) executable = "studio"
 
   switch (platform) {
     case ~/^Windows.*/:
@@ -225,6 +226,80 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
              "Use a IDEA_HOME environment variable or the `ideahome` property in `.ideainspect` \n" +
                      "or the `-i` command line option to point me to a valid IntelliJ installation")
   ideaExecutable
+}
+
+private static String getIdeaHome(OptionAccessor cliOpts) {
+  cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
+}
+
+/**
+ * This method workarounds the lack of a CLI argument for the analysis scope by temporarily adding a
+ * scope parameter in the {@code idea.properties} file.
+ * @param propertiesPath Path to `idea.properties`
+ * @param scopeName The scope to apply
+ * @return The backup path of the original `idea.properties`
+ */
+private File applyScopeViaPropFile(OptionAccessor cliOpts) {
+
+  if (!cliOpts.sc) return null
+  String scopeName = cliOpts.sc
+
+  println "\nYou defined a analysis scope. We need to temporarily modify `idea.properties` to get this working."
+
+  def File ideaPropsFile = findIdeaProperties(cliOpts)
+  def newPropsContent = new ArrayList<String>()
+  def File propertiesBackupFile = null
+
+  if (ideaPropsFile.exists()) {
+    // If the file already exists we copy it
+    propertiesBackupFile = new File(ideaPropsFile.absolutePath + ".idea-cli-inspect." + System.currentTimeMillis())
+    Files.copy(ideaPropsFile.toPath(), propertiesBackupFile.toPath())
+    List<String> lines = ideaPropsFile.readLines()
+    for (line in lines) {
+      if (!line.contains("idea.analyze.scope")) newPropsContent.add(line)
+    }
+  }
+
+  // If the file does not exist, it is instantiated when written to
+  newPropsContent.add("idea.analyze.scope=" + scopeName)
+  ideaPropsFile.write(newPropsContent.join('\n'))
+
+  def backupPath = propertiesBackupFile?.path ?: "<no file existed>"
+  println "Added scope `" + scopeName + "` to `" + ideaPropsFile.absolutePath + "` Backup: `" + backupPath + "`"
+
+  propertiesBackupFile
+}
+
+/**
+ * Revert to original IDEA configuration from backup.
+ */
+private cleanupIdeaProps(OptionAccessor cliOpts, File backupFile) {
+  File ideaPropsFile = findIdeaProperties(cliOpts)
+  ideaPropsFile.delete()
+  if (backupFile?.exists()) {
+    println "Recovering `" + backupFile.absolutePath + "` back to `" + ideaPropsFile.absolutePath + "`"
+    backupFile.renameTo(ideaPropsFile)
+  } else {
+    println "Deleted temporarily created `" + ideaPropsFile.absolutePath + "`"
+  }
+}
+
+/** Tries to locate the `idea.properties` file either via convention or via parameters. */
+private File findIdeaProperties(OptionAccessor cliOpts) {
+  String propertiesPath
+  if (cliOpts.ip) {
+    propertiesPath = cliOpts.ip
+  } else {
+    propertiesPath = getIdeaHome(cliOpts) + "/bin/idea.properties"
+  }
+  def propsFile = new File(propertiesPath)
+  assertPath(propsFile, "idea.properties",
+             "IDEA currently does currently not allow to pass the desired inspection scope as program parameter.\n" +
+                     "Currently the only way is to set a temporary property in the `idea.properties` configuration file\n" +
+                     "of your IntelliJ installation. We did not find that file. Therefore you need to pass the full path\n" +
+                     "to this file if you want to restrict the analysis to a specific scope."
+  )
+  propsFile
 }
 
 @SuppressWarnings("GroovyUntypedAccess")
@@ -273,8 +348,7 @@ private analyzeResult(File resultPath, List<String> acceptedLeves,
 }
 
 private void printAnalysisHeader(File resultPath, List<String> acceptedLeves, List skipResults, List skipIssueFilesRegex) {
-  println " "
-  println "#"
+  println "\n#"
   println "# Inspecting produced result files in $resultPath"
   println "#"
   println "# Looking for levels    : $acceptedLeves"
@@ -283,8 +357,7 @@ private void printAnalysisHeader(File resultPath, List<String> acceptedLeves, Li
 }
 
 private void printAnalysisFooterAndExit(boolean allGood) {
-  println " "
-  println "#"
+  println "\n#"
   println "# Analysis Result"
   println "#"
 
@@ -303,5 +376,26 @@ private static String workaroundUnclosedProblemXmlTags(String fileContents) {
   fileContents = fileContents.replace("file://\$PROJECT_DIR\$/", "")
   fileContents = "<problems>" + fileContents.replaceAll("<.?problems.*>", "") + "</problems>"
   fileContents
+}
+
+/**
+ * Fail if the passed File does not exists
+ * @param path The desired file
+ * @param description A human-readable description what file we are looking for
+ * @param hint an optional hint what to do now...
+ */
+private void assertPath(File path, String description, String hint = null) {
+  if (!path.exists()) {
+    println "PROBLEM: " + description + " `" + path.path + "` not found!"
+    if (hint) println "\n" + hint
+    println "\nAborting."
+    System.exit(1)
+  }
+}
+
+private void fail(String message) {
+  println "FATAL ERROR: " + message
+  println "\nAborting."
+  System.exit(1)
 }
 

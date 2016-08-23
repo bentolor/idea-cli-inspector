@@ -19,6 +19,14 @@
                     <option name="myName" value="help" />
                   </DPropertyElement>
                   <DPropertyElement>
+                    <option name="name" value="n" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.Boolean" />
+                    <option name="myType" value="java.lang.Boolean" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="n" />
+                  </DPropertyElement>
+                  <DPropertyElement>
                     <option name="name" value="d" />
                     <option name="static" value="false" />
                     <option name="type" value="java.lang.String" />
@@ -41,6 +49,14 @@
                     <option name="myType" value="java.lang.String" />
                     <option name="myStatic" value="false" />
                     <option name="myName" value="i" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="ip" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="ip" />
                   </DPropertyElement>
                   <DPropertyElement>
                     <option name="name" value="l" />
@@ -75,12 +91,28 @@
                     <option name="myName" value="s" />
                   </DPropertyElement>
                   <DPropertyElement>
+                    <option name="name" value="sc" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="sc" />
+                  </DPropertyElement>
+                  <DPropertyElement>
                     <option name="name" value="sf" />
                     <option name="static" value="false" />
                     <option name="type" value="java.lang.String" />
                     <option name="myType" value="java.lang.String" />
                     <option name="myStatic" value="false" />
                     <option name="myName" value="sf" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="t" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="t" />
                   </DPropertyElement>
                   <DPropertyElement>
                     <option name="name" value="sfs" />

@@ -13,11 +13,18 @@ resultdir: target/inspection-results
 # IDEA installation home directory. Default: IDEA_HOME environment variable or "idea".
 # ideahome: /home/ben/devel/idea
 
-# Limit IDEA inspection to this directory
+# Limit IDEA inspection to this directory (This overrides scoping)
 # dir: .
 
 # Use this inspection profile file located ".idea/inspectionProfiles".
-# profile: Project_Default.xml
+profile: bentolor_inspections.xml
 
 # IDEA project root directory containing the ".idea" directory
 # rootdir: .
+
+# Full path to the local idea.properties file. More info at:
+# http://tools.android.com/tech-docs/configuration
+# iprops: /Users/Shared/User/Library/Preferences/AndroidStudio2.1/idea.properties
+
+# Custom IDEA Scope name
+scope: inspector-code
