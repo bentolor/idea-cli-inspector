@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Execute idea-cli-inspector (Dry-run)" type="GroovyScriptRunConfiguration" factoryName="Groovy">
+    <module name="idea-cli-inspector.git" />
+    <setting name="path" value="file://$PROJECT_DIR$/ideainspect.groovy" />
+    <setting name="vmparams" value="" />
+    <setting name="params" value="-n" />
+    <setting name="workDir" value="file://$PROJECT_DIR$" />
+    <setting name="debug" value="false" />
+    <method />
+  </configuration>
+</component>
