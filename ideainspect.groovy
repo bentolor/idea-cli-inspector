@@ -1,7 +1,12 @@
 #!/usr/bin/env groovy
+import groovy.io.FileType
+import groovy.transform.Field
+import org.apache.commons.cli.Option
+
+import java.nio.file.Paths
 
 /*
- * Copyright 2015 Benjamin Schmid
+ * Copyright 2015-2016 Benjamin Schmid, @bentolor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +25,7 @@
 
     Note to the reader:
      This is my very first Groovy script. Please be nice.
-     Not very happy with the results for myself.
 */
-import groovy.io.FileType
-import org.apache.commons.cli.Option
-import java.nio.file.Paths
-
 println "= IntellIJ IDEA Code Analysis Wrapper - v1.5 - @bentolor"
 
 // Defaults
@@ -34,13 +34,14 @@ def acceptedLeves = ["[WARNING]", "[ERROR]"]
 def skipResults = []
 def skipIssueFilesRegex = []
 def ideaTimeout = 20 // broken - has no effect
-verbose = false
+@Field Boolean verbose = false
 
 //
 // --- Command line option parsing
 //
 def configOpts = parseConfigFile()
-def OptionAccessor cliOpts = parseCli((configOpts << args).flatten())
+configOpts.addAll(args)
+def OptionAccessor cliOpts = parseCli(configOpts)
 
 // Levels
 if (cliOpts.l) {
@@ -48,23 +49,16 @@ if (cliOpts.l) {
   cliOpts.ls.each { level -> acceptedLeves << "[" + level + "]" }
 }
 // Skip result XML files
-if (cliOpts.s) {
-  cliOpts.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
-}
+if (cliOpts.s) cliOpts.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
 // Skip issues affecting given file name regex
-if (cliOpts.sf) {
-  cliOpts.sfs.each { skipRegex -> skipIssueFilesRegex << skipRegex }
-}
+if (cliOpts.sf) cliOpts.sfs.each { skipRegex -> skipIssueFilesRegex << skipRegex }
 // target directory
-if (cliOpts.t) {
-  resultDir = cliOpts.t
-}
-// timeout
-// if (cliOpts.to) ideaTimeout = cliOpts.to.toInteger();
+if (cliOpts.t) resultDir = cliOpts.t
+
 // IDEA home
 File ideaPath = findIdeaExecutable(cliOpts)
 // Passed project root Directory or working directory
-def rootDir =  cliOpts.r ? new File(cliOpts.r) : Paths.get(".").toAbsolutePath().normalize().toFile()
+def rootDir = cliOpts.r ? new File(cliOpts.r) : Paths.get(".").toAbsolutePath().normalize().toFile()
 def dotIdeaDir = new File(rootDir, ".idea")
 assertPath(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` property to the location of your `.idea` project")
 // Inspection Profile
@@ -74,22 +68,14 @@ assertPath(profilePath, "IDEA inspection profile file")
 
 // Prepare result directory
 def resultPath = new File(resultDir);
-if (!resultPath.absolute) {
-  resultPath = new File(rootDir, resultDir)
-};
-if (resultPath.exists() && !resultPath.deleteDir()) {
-  fail "Unable to remove result dir " + resultPath.absolutePath
-}
-if (!resultPath.mkdirs()) {
-  fail "Unable to create result dir " + resultPath.absolutePath
-}
+if (!resultPath.absolute) resultPath = new File(rootDir, resultDir)
+if (resultPath.exists() && !resultPath.deleteDir()) fail "Unable to remove result dir " + resultPath.absolutePath
+if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absolutePath
 
 //
 // --- Running IDEA Properties Modifier
 //
-if(cliOpts.sc){
-  modifyIdeaProps(cliOpts)
-}
+if(cliOpts.sc) modifyIdeaProps(cliOpts)
 
 //
 // --- Actually running IDEA
@@ -97,35 +83,30 @@ if(cliOpts.sc){
 
 //  ~/projects/dashboard.git/. ~/projects/dashboard.git/.idea/inspectionProfiles/bens_idea15_2015_11.xml /tmp/ -d server
 def ideaArgs = [ideaPath.path, "inspect", rootDir.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
-if (cliOpts.d) {
-  ideaArgs << "-d" << cliOpts.d
-}
+if (cliOpts.d) ideaArgs << "-d" << cliOpts.d
 
 println "#"
 println "# Running IDEA IntelliJ Inspection"
 println "#"
 println "Executing: " + ideaArgs.join(" ")
+if (!cliOpts.n) {
+  def processBuilder = new ProcessBuilder(ideaArgs)
+  processBuilder.redirectErrorStream(true)
+  processBuilder.directory(rootDir)  // <--
 
-def processBuilder = new ProcessBuilder(ideaArgs)
-if(cliOpts.sc){
-  processBuilder.environment().put("idea.analyze.scope", cliOpts.sc)
-}
-processBuilder.redirectErrorStream(true)
-processBuilder.directory(rootDir)  // <--
-def ideaProcess = processBuilder.start()
-ideaProcess.consumeProcessOutput(System.out, System.err)
-ideaProcess.waitForOrKill(1000 * 60 * ideaTimeout)
-def exitValue = ideaProcess.exitValue()
-if (exitValue != 0) {
-  fail("IDEA Process returned with an unexpected return code of $exitValue")
+  def ideaProcess = processBuilder.start()
+  ideaProcess.consumeProcessOutput((OutputStream) System.out, System.err)
+  ideaProcess.waitForOrKill(1000 * 60 * ideaTimeout)
+  def exitValue = ideaProcess.exitValue()
+  if (exitValue != 0) fail("IDEA process returned with an unexpected return code of $exitValue")
+} else {
+  println("Dry-run: Not starting IDEA process")
 }
 
 //
 // --- Clean up time
 //
-if(cliOpts.sc){
-  cleanUpIdeaProps(cliOpts)
-}
+if(cliOpts.sc)  cleanUpIdeaProps(cliOpts)
 //
 // --- Now lets look on the results
 //
@@ -135,24 +116,21 @@ analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
 //  --- Helper functions
 //
 
-void assertPath(File profilePath, String description, String hint = null) {
+private void assertPath(File profilePath, String description, String hint = null) {
   if (!profilePath.exists()) {
     println description + " " + profilePath.path + " not found!"
-    if (hint) {
-      println hint
-    }
+    if (hint) println hint
     System.exit(1)
   }
 }
 
-
-void fail(String message) {
+private void fail(String message) {
   println "FATAL ERROR: " + message
   println "             Aborting."
   System.exit(1)
 }
 
-private parseConfigFile() {
+private List<String> parseConfigFile() {
   // Parse root dir with minimal CliBuilder
   def cliBuilder = new CliBuilder()
   cliBuilder.with {
@@ -169,9 +147,9 @@ private parseConfigFile() {
   def configFile = new File(rootDir + '/.ideainspect')
   def configArgs = []
   if (configFile.exists()) {
-    if (verbose) {
-      println "Parsing " + configFile.absolutePath
-    }
+    if (verbose) println "Parsing " + configFile.absolutePath
+
+    //noinspection GroovyMissingReturnStatement
     configFile.eachLine { line ->
       def values = line.split(':')
       if (!line.startsWith('#') && values.length == 2) {
@@ -180,13 +158,13 @@ private parseConfigFile() {
       }
     }
   }
-  if (verbose) {
-    println configArgs
-  }
+
+  if (verbose) println configArgs
+
   return configArgs
 }
 
-private OptionAccessor parseCli(configArgs) {
+private OptionAccessor parseCli(List<String> configArgs) {
   def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy\n      -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>',
                                   stopAtNonOption: false)
   cliBuilder.with {
@@ -211,6 +189,8 @@ private OptionAccessor parseCli(configArgs) {
       'IDEA project root directory containing the ".idea" directory. Default: Working directory'
     v argName: 'verbose', longOpt: 'verbose', args: 0,
       'Enable verbose logging & debugging'
+    n argName: 'dry-run', longOpt: 'dry-run', args: 0,
+      'Dry-run: Do not start IDEA, but run parsing as usual'
     //to argName: 'minutes', longOpt: 'timeout', args: 1,
     //  'Timeout in Minutes to wait for IDEA to complete the inspection. Default:'
   }
@@ -238,13 +218,11 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
   def platform = System.properties['os.name'], scriptPath
   def ideaHome = cliOpts.i ?: (System.getenv("IDEA_HOME") ?: "idea")
   def executable = "idea"
-  if(ideaHome.toLowerCase().contains("android")){
-  	executable = "studio"
-  }
+  if (ideaHome.toLowerCase().contains("Android")) executable = "studio"
 
   switch (platform) {
     case ~/^Windows.*/:
-      scriptPath =  "bin" + File.separator + executable + ".bat"
+      scriptPath = "bin" + File.separator + executable + ".bat"
       break;
     case "Mac OS X":
       scriptPath = "Contents/MacOS/" + executable
@@ -314,26 +292,17 @@ private cleanUpIdeaProps(OptionAccessor cliOpts){
   println "# idea-cli-inspector: CLEANUP END"
 }
 
+@SuppressWarnings("GroovyUntypedAccess")
 private analyzeResult(File resultPath, List<String> acceptedLeves,
                       List skipResults, List skipIssueFilesRegex) {
-  println " "
-  println "#"
-  println "# Inspecting produced result files in $resultPath"
-  println "#"
-  println "# Looking for levels    : $acceptedLeves"
-  println "# Ignoring result files : $skipResults"
-  println "# Ignoring source files : $skipIssueFilesRegex"
+
+  printAnalysisHeader(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
 
   def allGood = true;
 
   resultPath.eachFile(FileType.FILES) { file ->
-    // Workaround for wrong XML formatting.
-    // They clutter "</problems>" all-over
-    //    See Bug: https://youtrack.jetbrains.com/issue/IDEA-148855
-    String fileContents = file.getText('UTF-8')
-    fileContents = fileContents.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "")
-    fileContents = fileContents.replace("file://\$PROJECT_DIR\$/", "")
-    fileContents = "<problems>" + fileContents.replaceAll("<.?problems.*>", "") + "</problems>"
+
+    String fileContents = workaroundUnclosedProblemXmlTags(file.getText('UTF-8'))
 
     def xmlDocument = new XmlParser().parseText(fileContents)
     def fileIssues = []
@@ -348,7 +317,7 @@ private analyzeResult(File resultPath, List<String> acceptedLeves,
       String severity = problem.problem_class.@severity
       String affectedFile = problem.file.text()
       boolean fileShouldBeIgnored = false
-      skipIssueFilesRegex.each { regex -> fileShouldBeIgnored = (fileShouldBeIgnored || affectedFile.matches(regex)) }
+      skipIssueFilesRegex.each { String regex -> fileShouldBeIgnored = (fileShouldBeIgnored || affectedFile.matches(regex)) }
       if (acceptedLeves.contains(severity) && !fileShouldBeIgnored) {
         String problemDesc = problem.description.text()
         String line = problem.line.text()
@@ -364,16 +333,40 @@ private analyzeResult(File resultPath, List<String> acceptedLeves,
     }
   }
 
+  printAnalysisFooterAndExit(allGood)
+  return allGood ? 0 : 1
+}
+
+private void printAnalysisHeader(File resultPath, List<String> acceptedLeves, List skipResults, List skipIssueFilesRegex) {
+  println " "
+  println "#"
+  println "# Inspecting produced result files in $resultPath"
+  println "#"
+  println "# Looking for levels    : $acceptedLeves"
+  println "# Ignoring result files : $skipResults"
+  println "# Ignoring source files : $skipIssueFilesRegex"
+}
+
+private void printAnalysisFooterAndExit(boolean allGood) {
   println " "
   println "#"
   println "# Analysis Result"
   println "#"
 
-  if (allGood) {
-    println "Looks great - everything seems to be ok!"
-    System.exit(0)
-  } else {
-    println "Entries found. Returncode: 1"
-    System.exit(1)
-  }
+  println allGood ? "Looks great - everything seems to be ok!"
+                  : "Entries found. Returncode: 1"
 }
+
+/**
+ * Workaround for wrong XML formatting. IDEA clutters "</problems>" all-over.
+ * See Bug report : https://youtrack.jetbrains.com/issue/IDEA-148855
+ * @param fileContents XML file content string
+ * @return XML file content with duplicate {@code </problems>} entries removed.
+ */
+private static String workaroundUnclosedProblemXmlTags(String fileContents) {
+  fileContents = fileContents.replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "")
+  fileContents = fileContents.replace("file://\$PROJECT_DIR\$/", "")
+  fileContents = "<problems>" + fileContents.replaceAll("<.?problems.*>", "") + "</problems>"
+  fileContents
+}
+

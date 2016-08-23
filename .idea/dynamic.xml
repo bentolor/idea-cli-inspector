@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DynamicElementsStorage">
+    <option name="containingClasses">
+      <map>
+        <entry key="groovy.util.OptionAccessor">
+          <value>
+            <DClassElement>
+              <option name="name" value="groovy.util.OptionAccessor" />
+              <option name="myName" value="groovy.util.OptionAccessor" />
+              <option name="myProperties">
+                <set>
+                  <DPropertyElement>
+                    <option name="name" value="help" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.Boolean" />
+                    <option name="myType" value="java.lang.Boolean" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="help" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="d" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="d" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="v" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.Boolean" />
+                    <option name="myType" value="java.lang.Boolean" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="v" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="i" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="i" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="l" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="l" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="ls" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String[]" />
+                    <option name="myType" value="java.lang.String[]" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="ls" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="r" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="r" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="s" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="s" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="sf" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String" />
+                    <option name="myType" value="java.lang.String" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="sf" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="sfs" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String[]" />
+                    <option name="myType" value="java.lang.String[]" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="sfs" />
+                  </DPropertyElement>
+                  <DPropertyElement>
+                    <option name="name" value="ss" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.String[]" />
+                    <option name="myType" value="java.lang.String[]" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="ss" />
+                  </DPropertyElement>
+                </set>
+              </option>
+            </DClassElement>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
