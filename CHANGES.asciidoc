@@ -1,14 +1,33 @@
 = Changes
 
-[cols="1,5", options="header"]
+[cols="1,6", options="header"]
 |===
-| Version | Change
-| 1.5 | Support for custom Intellij scopes +
-| 1.4 | Support for Android Studio installations +
-| 1.3 | Support for Mac OSX locations of IntelliJ IDEA executables +
-| 1.2 | Add support for configuration file +
-        Add debugging flag `-v` +
-        Replaced all mandatory CLI options with default values (root directory, IDEA home, Inspection profile name, ...)
-| 1.1 | Support for ignoring issues affecting specific source files using a regular expression  (Option `-sf`)
-| 1.0 | First release
+| Version
+| Change
+
+| 1.5.1
+| Increase process timeout to avoid seeing an unexpected return code
+  of 143
+
+| 1.5
+| Support for custom Intellij scopes +
+
+| 1.4
+| Support for Android Studio installations +
+
+| 1.3
+| Support for Mac OSX locations of IntelliJ IDEA executables +
+
+| 1.2
+| Add support for configuration file +
+  Add debugging flag `-v` +
+  Replaced all mandatory CLI options with default values
+  (root directory, IDEA home, Inspection profile name, ...)
+
+| 1.1
+| Support for ignoring issues affecting specific source files
+  using a regular expression  (Option `-sf`)
+
+| 1.0
+| First release
 |===

@@ -27,14 +27,20 @@ import java.nio.file.Paths
     Note to the reader:
      This is my very first Groovy script. Please be nice.
 */
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.5 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.5.1 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
 def acceptedLeves = ["[WARNING]", "[ERROR]"]
 def skipResults = []
 def skipIssueFilesRegex = []
-def ideaTimeout = 20 // broken - has no effect
+// Process timeout:
+//    This is more or less broken, because after reaching the timeout value
+//    it will kill only the Wrapper script and the IDEA process will happily
+//    continue to run.
+//    We should never reach this value and IDEA should always termiante on
+//    its own
+def ideaWrapperTimeout = 1200  // Minutes
 @Field Boolean verbose = false
 
 //
@@ -97,7 +103,7 @@ if (!cliOpts.n) {
   println "~" * 80
   def ideaProcess = processBuilder.start()
   ideaProcess.consumeProcessOutput((OutputStream) System.out, System.err)
-  ideaProcess.waitForOrKill(1000 * 60 * ideaTimeout)
+  ideaProcess.waitForOrKill(1000 * 60 * ideaWrapperTimeout)
   exitValue = ideaProcess.exitValue()
   println "~" * 80
 } else {
@@ -398,4 +404,3 @@ private void fail(String message) {
   println "\nAborting."
   System.exit(1)
 }
-
