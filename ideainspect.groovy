@@ -118,7 +118,8 @@ if (exitValue != 0) fail("IDEA process returned with an unexpected return code o
 //
 // --- Now lets look on the results
 //
-analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
+exitValue = analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
+if (exitValue != 0) fail("Found inspection results.")
 
 //
 //  --- Helper functions
