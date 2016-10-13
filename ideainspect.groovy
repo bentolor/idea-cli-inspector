@@ -118,7 +118,14 @@ if (exitValue != 0) fail("IDEA process returned with an unexpected return code o
 //
 // --- Now lets look on the results
 //
-analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
+def returnCode = analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
+System.exit(returnCode)
+
+
+// ===============================================================================================
+// ==== End of script body
+// ===============================================================================================
+
 
 //
 //  --- Helper functions
@@ -349,7 +356,7 @@ private analyzeResult(File resultPath, List<String> acceptedLeves,
     }
   }
 
-  printAnalysisFooterAndExit(allGood)
+  printAnalysisFooter(allGood)
   return allGood ? 0 : 1
 }
 
@@ -362,7 +369,7 @@ private void printAnalysisHeader(File resultPath, List<String> acceptedLeves, Li
   println "# Ignoring source files : $skipIssueFilesRegex"
 }
 
-private void printAnalysisFooterAndExit(boolean allGood) {
+private void printAnalysisFooter(boolean allGood) {
   println "\n#"
   println "# Analysis Result"
   println "#"

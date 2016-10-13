@@ -5,6 +5,9 @@
 | Version
 | Change
 
+| 1.5.2
+| Critical bugfix: Return code not returned on failed analysis. Introduced with 1.5.0.
+
 | 1.5.1
 | Increase process timeout to avoid seeing an unexpected return code
   of 143
