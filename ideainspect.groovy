@@ -176,12 +176,13 @@ private OptionAccessor parseCli(List<String> configArgs) {
     sf argName: 'regex', longOpt: 'skipfile', args: Option.UNLIMITED_VALUES, valueSeparator: ',',
        'Ignore issues affecting source files matching given regex. Example: `.*/generated/.*`.'
     sc argName: 'string', longOpt: 'scope', args: 1,
-       'The name of the scope to be processed'
+       'The name of the "Custom scope" to apply. Custom scopes can be defined in the IDE. '+
+       'Share the resulting file in .idea/scopes/scopename.xml and provide the name of the scope (not file) here.'
     t argName: 'dir', longOpt: 'resultdir', args: 1,
       'Target directory to place the IDEA inspection XML result files. \nDefault: `target/inspection-results`'
     i argName: 'dir', longOpt: 'ideahome', args: 1,
       'IDEA or Android Studio installation home directory. Default: IDEA_HOME env var or `idea`'
-    d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory'
+    d argName: 'dir', longOpt: 'dir', args: 1, 'Limit IDEA inspection to this directory. Overrides the scope argument.'
     ip argName: 'file', longOpt: 'iprops', args: 1, 'Full path to your `idea.properties`. Only required if 1) you use --scope and 2) ' +
             'file is not located under in the default. \nDefault: `<ideahome>/idea/bin/idea.properties`'
     p argName: 'file', longOpt: 'profile', args: 1,

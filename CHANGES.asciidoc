@@ -5,6 +5,10 @@
 | Version
 | Change
 
+| HEAD
+| Add documentation about scoping. +
+  Add more FAQ entries.
+
 | 1.5.2
 | Critical bugfix: Return code not returned on failed analysis. Introduced with 1.5.0.
 

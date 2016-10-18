@@ -26,5 +26,10 @@ profile: bentolor_inspections.xml
 # http://tools.android.com/tech-docs/configuration
 # iprops: /Users/Shared/User/Library/Preferences/AndroidStudio2.1/idea.properties
 
-# Custom IDEA Scope name
+# Apply an optional "Custom scope" for the analysis run
+# See: https://www.jetbrains.com/help/idea/2016.2/specify-inspection-scope-dialog.html
+#
+# 1) Share the .idea/scopes/scopename.xml with the project
+# 2) Use the _name_ of the scope (not the file).
+# 3) Stick to a single word for best compability
 scope: inspector-code

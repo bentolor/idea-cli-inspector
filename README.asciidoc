@@ -83,34 +83,50 @@ include::.ideainspect[]
 ----
 
 === Command line based usage
-For a full list of options please run `ideainspect.groovy -h`:
+For a full / up-to-date list of options please run `ideainspect.groovy -h`:
 
 ----
-usage: groovy ideainspect.groovy -i <IDEA_HOME> -p <PROFILEXML> -r <PROJDIR>
- -d,--dir <dir>           Limit IDEA inspection to this directory
-                          Overrides the scope argument
+= IntellIJ IDEA Code Analysis Wrapper - v1.5.2 - @bentolor
+
+This tools runs IntelliJ IDEA inspection via command line and
+tries to parse the output.
+
+Example usage:
+  ./ideainspect.groovy -i ~/devel/idea -r . -p myinspections.xml \
+     -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR
+
+For more convenience you can pass all options in a `.ideainspect` file
+instead of passing it via command line
+
+usage: groovy ideainspect.groovy [options]
+ -d,--dir <dir>           Limit IDEA inspection to this directory.
+                          Overrides the scope argument.
  -h,--help                Show usage information and quit
- -i,--ideahome <dir>      IDEA or Android Studio 
-                          installation home directory. Required
+ -i,--ideahome <dir>      IDEA or Android Studio installation home
+                          directory. Default: IDEA_HOME env var or `idea`
+ -ip,--iprops <file>      Full path to your `idea.properties`. Only
+                          required if 1) you use --scope and 2) file is
+                          not located under in the default.
+                          Default: `<ideahome>/idea/bin/idea.properties`
  -l,--levels <level>      Levels to look for. Default: WARNING,ERROR
- -p,--profile <file>      Use this inspection profile file located
-                          ".idea/inspectionProfiles".
-                          Example: "myprofile.xml"
+ -n,--dry-run             Dry-run: Do not start IDEA, but run parsing
+ -p,--profile <file>      Use this inspection profile file located under
+                          `.idea/inspectionProfiles`.
+                          Default: `Project_Default.xml`
  -r,--rootdir <dir>       IDEA project root directory containing the
-                          ".idea" directory
+                          `.idea` directory. Default: Working directory
  -s,--skip <file>         Analysis result files to skip. For example
-                          "TodoComment" or "TodoComment.xml".
+                          `TodoComment` or `TodoComment.xml`.
+ -sc,--scope <string>     The name of the "Custom scope" to apply. Custom
+                          scopes can be defined in the IDE. Share the
+                          resulting file in .idea/scopes/scopename.xml and
+                          provide the name of the scope (not file) here.
  -sf,--skipfile <regex>   Ignore issues affecting source files matching
-                          given regex. Example ".*/generated/.*".
- -ip,--iprops <dir>       The full path to the "idea.properties" file.
-                          Info can be found at:
-                          http://tools.android.com/tech-docs/configuration
- -sc,--scope <string>     Perform analysis with scope name. These are
-                          usually set in IDEA or Android Studio. The
-                          scope file should be placed in .idea/scopes/
+                          given regex. Example: `.*/generated/.*`.
  -t,--resultdir <dir>     Target directory to place the IDEA inspection
-                          XML result files. Default:
-                          target/inspection-results
+                          XML result files.
+                          Default: `target/inspection-results`
+ -v,--verbose             Enable verbose logging
 ----
 
 
@@ -210,14 +226,33 @@ To fix this error simply assign every module a SDK other than "Project SDK".
 
 .The analysis seems to produce different results on subsequent runs on the same sources (esp. JavaScript)
 
-This seems to be an issue with the IDEA caches which IntelliJ keeps i.e. under 
-`.IntelliJ2016.1/system`. Try if deleting this directory prior to executing 
+This seems to be an issue with the IDEA caches which IntelliJ keeps i.e. under
+`.IntelliJ2016.1/system`. Try if deleting this directory prior to executing
 the analysis runs produces stable results.
 
 .What shall I pass as IDEA home directory for Mac OSX?
 
 `/Applications/IntelliJ\ IDEA.app` should be the default installation folder.
 
+.I'm using Android Studio and I can't find `idea.properties`!
+
+See the details about the location at
+http://tools.android.com/tech-docs/configuration
+
+.Scoping does not work?
+First: Did you versionate the `.idea/scope/scopename.xml` file in your project?
+Did you specify the Custom scope _name_ and not the filename?
+
+If no, it might be that there is an issue that you are not pointing the
+`--iprops` option to the right `idea.properties` file or you i.e. don't have
+write access for it.
+
+_Background information and troubleshooting:_
+Unfortunately IDEA yet does not offer a direct CLI option for applying scope.
+Therefore we need to pass a System property entries via modifying the
+`idea.properties` file. Check the output of the script if you spot any issues
+during this process. Check the content of `idea.properties` during the run
+and look out for you scope name.
 
 == Source code & Contributions
 
