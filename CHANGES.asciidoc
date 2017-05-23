@@ -9,6 +9,9 @@
 | Add documentation about scoping. +
   Add more FAQ entries.
 
+| 1.5.3
+| Render reported violations to STDERR. This should display them more prominently i.e. in CI environments.
+
 | 1.5.2
 | Critical bugfix: Return code not returned on failed analysis. Introduced with 1.5.0.
 

@@ -27,7 +27,7 @@ import java.nio.file.Paths
     Note to the reader:
      This is my very first Groovy script. Please be nice.
 */
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.5.2 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.5.3 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
@@ -351,9 +351,9 @@ private analyzeResult(File resultPath, List<String> acceptedLeves,
 
     if (!fileIssues.empty) {
       allGood = false;
-      println("--- $xmlFileName")
-      println(fileIssues.join("\n"))
-      println("")
+      System.err.println("--- $xmlFileName")
+      System.err.println(fileIssues.join("\n"))
+      System.err.println("")
     }
   }
 
