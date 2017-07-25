@@ -227,7 +227,7 @@ To fix this error simply assign every module a SDK other than "Project SDK".
 .The analysis seems to produce different results on subsequent runs on the same sources (esp. JavaScript)
 
 This seems to be an issue with the IDEA caches which IntelliJ keeps i.e. under
-`.IntelliJ2016.1/system`. Try if deleting this directory prior to executing
+`.IntelliJ201X.X/system`. Try if deleting this directory prior to executing
 the analysis runs produces stable results.
 
 .What shall I pass as IDEA home directory for Mac OSX?
@@ -253,6 +253,17 @@ Therefore we need to pass a System property entries via modifying the
 `idea.properties` file. Check the output of the script if you spot any issues
 during this process. Check the content of `idea.properties` during the run
 and look out for you scope name.
+
+.I receive different results in my IDE vs. on the CI server
+
+Please check the following:
+
+- [ ] Same version of IDEA installed on CI vs. you installation?
+- [ ] Do you have the same plugins installed? Some bring own inspections or
+      support fur understanding file formats (like `.vue` files with the
+      vue plugin).
+- [ ] Do you delete the `.IntelliJ201X.X/system` folder prior to every run on
+      CI (see above)?
 
 == Source code & Contributions
 
