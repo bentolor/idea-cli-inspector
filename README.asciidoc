@@ -216,6 +216,14 @@ Entries found. return code: 1
 
 == Troubleshooting & FAQ
 
+.My inspection runs very long and takes to much time. What can I do?
+
+First: Introduce and use a new scope where you exclude all folders and/or include only those
+folders which are relevant for your inspection. Typical folders which are not relevant are 
+i.e. `node_modules`, `docs` or build output folders. Secondly think about creating and using
+a custom inspection profile for the purpose of the CI. There you i.e. might disable all 
+inspections with INFO/HINT level or i.e. the spell checking.
+
 .I receive a error message _Please, specify sdk 'null' for module 'foo'_
 
 Probably you excluded `misc.xml` from the versionied IDEA project. Which is
