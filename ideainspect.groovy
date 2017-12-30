@@ -46,8 +46,8 @@ def ideaWrapperTimeout = 1200  // Minutes
 //
 // --- Command line option parsing
 //
-def configOpts = parseConfigFile()
-configOpts.addAll(args)
+def configOpts = args.toList()
+configOpts.addAll(parseConfigFile())
 def OptionAccessor cliOpts = parseCli(configOpts)
 
 // Levels
@@ -159,7 +159,7 @@ private List<String> parseConfigFile() {
     }
   }
 
-  if (verbose) println configArgs
+  if (verbose) println "Config file content: " << configArgs
 
   return configArgs
 }
@@ -214,6 +214,13 @@ private OptionAccessor parseCli(List<String> configArgs) {
     cliBuilder.usage();
     System.exit(1);
   }
+  if (verbose) {
+    List<String> optDebug = []
+    for (Option o : cliBuilder.options.options) 
+       optDebug.add(o.longOpt << ": " << opt.getProperty(o.longOpt))
+    println "Effective configuration: " << optDebug.join(", ")
+  }
+
   opt
 }
 

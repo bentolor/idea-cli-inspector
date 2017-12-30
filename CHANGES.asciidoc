@@ -9,6 +9,9 @@
 | Add documentation about scoping. +
   Add more FAQ entries.
 
+| 1.5.4
+| CLI options override config values inside the `.ideainspect` file. The `--verbose` option now prints the effective configuration.
+
 | 1.5.3
 | Render reported violations to STDERR. This should display them more prominently i.e. in CI environments.
 
