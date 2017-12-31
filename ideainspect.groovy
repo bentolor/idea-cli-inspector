@@ -27,7 +27,7 @@ import java.nio.file.Paths
     Note to the reader:
      This is my very first Groovy script. Please be nice.
 */
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.5.3 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.5.4 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
@@ -216,7 +216,7 @@ private OptionAccessor parseCli(List<String> configArgs) {
   }
   if (verbose) {
     List<String> optDebug = []
-    for (Option o : cliBuilder.options.options) 
+    for (Option o : cliBuilder.options.options)
        optDebug.add(o.longOpt << ": " << opt.getProperty(o.longOpt))
     println "Effective configuration: " << optDebug.join(", ")
   }
