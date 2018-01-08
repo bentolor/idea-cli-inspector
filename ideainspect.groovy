@@ -31,7 +31,7 @@ println "= IntellIJ IDEA Code Analysis Wrapper - v1.5.4 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
-def acceptedLeves = ["[WARNING]", "[ERROR]"]
+def acceptedLevels = ["[WARNING]", "[ERROR]"]
 def skipResults = []
 def skipIssueFilesRegex = []
 // Process timeout:
@@ -52,8 +52,8 @@ def OptionAccessor cliOpts = parseCli(configOpts)
 
 // Levels
 if (cliOpts.l) {
-  acceptedLeves.clear()
-  cliOpts.ls.each { level -> acceptedLeves << "[" + level + "]" }
+  acceptedLevels.clear()
+  cliOpts.ls.each { level -> acceptedLevels << "[" + level + "]" }
 }
 // Skip result XML files
 if (cliOpts.s) cliOpts.ss.each { skipFile -> skipResults << skipFile.replace(".xml", "") }
@@ -66,12 +66,18 @@ if (cliOpts.t) resultDir = cliOpts.t
 File ideaPath = findIdeaExecutable(cliOpts)
 // Passed project root Directory or working directory
 def rootDir = cliOpts.r ? new File(cliOpts.r) : Paths.get(".").toAbsolutePath().normalize().toFile()
+def rootfilePath = cliOpts.rf ? new File(cliOpts.rf) : rootDir
+
 def dotIdeaDir = new File(rootDir, ".idea")
-assertPath(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` property to the location of your `.idea` project")
+assertPathIsDir(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` property to the location of your `.idea` project")
 // Inspection Profile
-def profileName = cliOpts.p ?: "Project_Default.xml"
-def profilePath = new File(dotIdeaDir.path + File.separator + "inspectionProfiles" + File.separator + profileName)
-assertPath(profilePath, "IDEA inspection profile file")
+def profilePath = cliOpts.p ? new File(cliOpts.p) : null
+if( profilePath == null || !profilePath.isAbsolute() ) {
+  // if the given arg is not a full path, then try with a path relative to the .idea dir
+  profileName = cliOpts.p ?: "Project_Default.xml"
+  profilePath = new File(dotIdeaDir.path + File.separator + "inspectionProfiles" + File.separator + profileName)
+}
+assertPathIsFile(profilePath, "IDEA inspection profile file")
 
 // Prepare result directory
 def resultPath = new File(resultDir);
@@ -84,7 +90,7 @@ if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absol
 //
 
 //  ~/projects/dashboard.git/. ~/projects/dashboard.git/.idea/inspectionProfiles/bens_idea15_2015_11.xml /tmp/ -d server
-def ideaArgs = [ideaPath.path, "inspect", rootDir.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
+def ideaArgs = [ideaPath.path, "inspect", rootfilePath.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
 if (cliOpts.d) ideaArgs << "-d" << cliOpts.d
 
 // Did user define a Analysis "Scope"? We need a dirty workaround
@@ -118,7 +124,7 @@ if (exitValue != 0) fail("IDEA process returned with an unexpected return code o
 //
 // --- Now lets look on the results
 //
-def returnCode = analyzeResult(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
+def returnCode = analyzeResult(resultPath, acceptedLevels, skipResults, skipIssueFilesRegex)
 System.exit(returnCode)
 
 
@@ -186,10 +192,13 @@ private OptionAccessor parseCli(List<String> configArgs) {
     ip argName: 'file', longOpt: 'iprops', args: 1, 'Full path to your `idea.properties`. Only required if 1) you use --scope and 2) ' +
             'file is not located under in the default. \nDefault: `<ideahome>/idea/bin/idea.properties`'
     p argName: 'file', longOpt: 'profile', args: 1,
-      'Use this inspection profile file located under `.idea/inspectionProfiles`. \nDefault: `Project_Default' +
-              '.xml`'
+      'Use this inspection profile file. If given an absolute path, the target file is used, otherwise the arg ' +
+      'denotes a file located under `.idea/inspectionProfiles`. \nDefault: `Project_Default.xml`'
     r argName: 'dir', longOpt: 'rootdir', args: 1,
       'IDEA project root directory containing the `.idea` directory. Default: Working directory'
+    rf argName: 'file', longOpt: 'rootfile', args: 1,
+            'full path to the pom.xml or build.gradle file for the project. Useful if the project is maven or gradle ' +
+                    'based and its rootdir does not contain all the *.iml and .idea/modules.xml files'
     v argName: 'verbose', longOpt: 'verbose', args: 0,
       'Enable verbose logging'
     n argName: 'dry-run', longOpt: 'dry-run', args: 0,
@@ -243,7 +252,7 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
   }
 
   def ideaExecutable = new File(ideaHome + File.separator + scriptPath)
-  assertPath(ideaExecutable, "IDEA Installation directory",
+  assertPathIsFile(ideaExecutable, "IDEA Installation directory",
              "Use a IDEA_HOME environment variable or the `ideahome` property in `.ideainspect` \n" +
                      "or the `-i` command line option to point me to a valid IntelliJ installation")
   ideaExecutable
@@ -314,7 +323,7 @@ private File findIdeaProperties(OptionAccessor cliOpts) {
     propertiesPath = getIdeaHome(cliOpts) + "/bin/idea.properties"
   }
   def propsFile = new File(propertiesPath)
-  assertPath(propsFile, "idea.properties",
+  assertPathIsFile(propsFile, "idea.properties",
              "IDEA currently does currently not allow to pass the desired inspection scope as program parameter.\n" +
                      "Currently the only way is to set a temporary property in the `idea.properties` configuration file\n" +
                      "of your IntelliJ installation. We did not find that file. Therefore you need to pass the full path\n" +
@@ -400,14 +409,28 @@ private static String workaroundUnclosedProblemXmlTags(String fileContents) {
 }
 
 /**
- * Fail if the passed File does not exists
- * @param path The desired file
+ * Fail if the passed File does not exist or is not a directory
+ * @param path The path to test for being a directory
+ * @param description A human-readable description what dir we are looking for
+ * @param hint an optional hint what to do now...
+ */
+private void assertPathIsDir(File path, String description, String hint = null) {
+  if (!path.exists() || !path.isDirectory()) {
+    println "PROBLEM: " + description + " `" + path.path + "` not found or not a directory!"
+    if (hint) println "\n" + hint
+    println "\nAborting."
+    System.exit(1)
+  }
+}
+/**
+ * Fail if the passed File does not exist or is not a file
+ * @param path The path to test for being a file
  * @param description A human-readable description what file we are looking for
  * @param hint an optional hint what to do now...
  */
-private void assertPath(File path, String description, String hint = null) {
-  if (!path.exists()) {
-    println "PROBLEM: " + description + " `" + path.path + "` not found!"
+private void assertPathIsFile(File path, String description, String hint = null) {
+  if (!path.exists() || !path.isFile()) {
+    println "PROBLEM: " + description + " `" + path.path + "` not found or not a file!"
     if (hint) println "\n" + hint
     println "\nAborting."
     System.exit(1)

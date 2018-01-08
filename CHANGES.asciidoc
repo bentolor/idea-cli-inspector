@@ -5,12 +5,15 @@
 | Version
 | Change
 
-| HEAD
-| Add documentation about scoping. +
-  Add more FAQ entries.
+| 1.6
+| New `--rootfile` option to allow inspection of maven projects without `.iml` files committed to SCM. +
+  The `--profile` option now accepts an absolute path to the inspection profile xml file.
+  If the path is not absolute, then the fle is supposed to be in `rootdir/.idea/inspectionProfiles/`.
 
 | 1.5.4
 | CLI options override config values inside the `.ideainspect` file. The `--verbose` option now prints the effective configuration.
+  Add documentation about scoping. +
+  Add more FAQ entries.
 
 | 1.5.3
 | Render reported violations to STDERR. This should display them more prominently i.e. in CI environments.
