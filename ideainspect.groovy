@@ -27,7 +27,7 @@ import java.nio.file.Paths
     Note to the reader:
      This is my very first Groovy script. Please be nice.
 */
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.5.4 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.6alpha - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"
