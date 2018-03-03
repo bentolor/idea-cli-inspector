@@ -90,7 +90,8 @@ if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absol
 //
 
 //  ~/projects/dashboard.git/. ~/projects/dashboard.git/.idea/inspectionProfiles/bens_idea15_2015_11.xml /tmp/ -d server
-def ideaArgs = [ideaPath.path, "inspect", rootfilePath.absolutePath, profilePath.absolutePath, resultPath.absolutePath, "-v1"]
+def ideaArgs = [ideaPath.path, "inspect", rootfilePath.absolutePath, profilePath.absolutePath, resultPath.absolutePath]
+ideaArgs << ((cliOpts.v) ? "-v2" : "-v1")
 if (cliOpts.d) ideaArgs << "-d" << cliOpts.d
 
 // Did user define a Analysis "Scope"? We need a dirty workaround
@@ -117,7 +118,7 @@ if (!cliOpts.n) {
 }
 
 // Scope workaround: Clean up time
-if (cliOpts.sc) cleanupIdeaProps(cliOpts, origPropFile)
+cleanupIdeaProps(cliOpts, origPropFile)
 
 if (exitValue != 0) fail("IDEA process returned with an unexpected return code of $exitValue")
 
@@ -274,6 +275,10 @@ private File applyScopeViaPropFile(OptionAccessor cliOpts) {
   if (!cliOpts.sc) return null
   String scopeName = cliOpts.sc
 
+  if (cliOpts.n) {
+    println "\nDry-run: You defined a analysis scope. We now would temporarily modify `idea.properties`."
+    return null
+  }
   println "\nYou defined a analysis scope. We need to temporarily modify `idea.properties` to get this working."
 
   def File ideaPropsFile = findIdeaProperties(cliOpts)
@@ -304,6 +309,7 @@ private File applyScopeViaPropFile(OptionAccessor cliOpts) {
  * Revert to original IDEA configuration from backup.
  */
 private cleanupIdeaProps(OptionAccessor cliOpts, File backupFile) {
+  if (!cliOpts.sc || backupFile == null) return;
   File ideaPropsFile = findIdeaProperties(cliOpts)
   ideaPropsFile.delete()
   if (backupFile?.exists()) {
