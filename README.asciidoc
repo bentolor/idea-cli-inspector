@@ -236,6 +236,66 @@ Entries found. return code: 1
 ----
 
 
+== Running within a Docker container (i.e. Travis CI)
+
+Here is a `.travis.yml` which demonstrates how to run `idea-cli-inspector` within a Docker container.
+
+Two things to note:
+
+* IDEA needs some very basic configuration already existing. At least i.e. the 
+  `.IntelliJIdea2018.1/config/options/jdk.table.xml` which defines the locations of the installed JDKs
+* The IDEA configuration directory location _varies from version to version and edition to edition_. 
+  I.e. it's `~/.IntelliJIdea2018.1` for the IDEA 2018.1 Ultimate edition and `~/.IdeaIC2018.1` for the
+  community edition
+* If you are using i.e. Node, Scala, VueJS etc. in your project please note, that these plugins bring 
+  more inspections to the table. If you want to have them in your CI/Docker run to, ensure that you  
+  add them to i.e. `.IntelliJIdea2017.3/config/plugins/` directory so they are picked up and effective.
+* You can build these required configurations either by manually adjusting and then copying those 
+  configuration file into the container or by i.e. manually starting IDEA within the container once
+  with the configuration directories mapped as Docker volumes i.e. like:
+
+----
+xhost +
+docker run -it --rm \
+           --dns 192.168.144.18 --dns 8.8.8.8 \
+           -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+           -v `pwd`/root/.IntelliJIdea2018.1:/root/.IntelliJIdea2018.1 \
+           -v `pwd`/root/.java:/root/.java  debug-ideacli-dockeragent  \
+           /bin/bash
+----  
+
+
+----
+language: java
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+before_install:
+  - sudo add-apt-repository ppa:mmk2410/intellij-idea -y
+  - sudo apt-get update -q
+  - sudo apt-get install intellij-idea-community -y
+  - sudo apt-get install groovy -y
+
+install:
+  - wget https://github.com/bentolor/idea-cli-inspector/archive/master.zip
+  - unzip master.zip
+  - sudo chmod -R aog+w /opt/intellij-idea-community/bin
+
+script:
+  # Copy idea configuration template (mostly .IntelliJIdea2018.1/config/options/jdk.table.xml)
+  - cp -r ./tools/idea-cli-inspector/root/.IntelliJIdea2018.1 /home/travis/
+  # Duplicate for community config dir
+  - cp -r ./tools/idea-cli-inspector/root/.IntelliJIdea2018.1 /home/travis/.IdeaIC2018.1
+  - ./idea-cli-inspector-master/ideainspect.groovy -i /opt/intellij-idea-community
+----
+
 == Troubleshooting & FAQ
 
 .My inspection runs very long and takes to much time. What can I do?
