@@ -239,6 +239,8 @@ Entries found. return code: 1
 == Running within a Docker container (i.e. Travis CI)
 
 Here is a `.travis.yml` which demonstrates how to run `idea-cli-inspector` within a Docker container.
+You can see this in practice running https://www.travis-ci.org/bentolor/microframeworks-showcase/[here on Travis CI]
+with the source inspected https://github.com/bentolor/microframeworks-showcase/[in my microframeworks-showcase project]
 
 Two things to note:
 
