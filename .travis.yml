@@ -13,16 +13,16 @@ before_install:
   - sudo add-apt-repository ppa:mmk2410/intellij-idea -y
   - sudo apt-get update -q
   - sudo apt-get install intellij-idea-community -y
-  - sudo apt-get install groovy -y
+#  - sudo apt-get install groovy -y
 
 install:
-  - ./gradlew assemble
+  - gradle assemble
   # - wget https://github.com/bentolor/idea-cli-inspector/archive/master.zip
   # - unzip master.zip
   - sudo chmod -R aog+w /opt/intellij-idea-community/bin
 
 script:
-  - ./gradlew check
+  - gradle check
   # Copy idea configuration template (mostly .IntelliJIdea2018.1/config/options/jdk.table.xml)
   - cp -r ./etc/travis-agent/.IntelliJIdea2018.1 /home/travis/.IdeaIC2018.1
   - ./ideainspect.groovy -i /opt/intellij-idea-community

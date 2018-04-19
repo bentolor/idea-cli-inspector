@@ -1,5 +1,5 @@
 # Levels to look for. Default: WARNING,ERROR
-levels: WARNING,ERROR,INFO
+#levels: WARNING,ERROR,INFO
 
 # Apply an "Custom scope" for the analysis run
 # This is _the prefered way_ to limit your inspection run to a part of your project files
@@ -19,7 +19,8 @@ scope: inspector-code
 #       For the sake of performance better disable these inspections within your 
 #       inspection profile. This here is a last-resort mechanism if you want them
 #       to appear in your IDE but not your CI process
-skip: TodoComment,Annotator
+#skip: TodoComment,Annotator
+skip: GroovyAssignabilityCheck
 
 # Ignore issues affecting source files matching given regex. Example ".*/generated/.*".
 #
@@ -28,10 +29,10 @@ skip: TodoComment,Annotator
 #       for the sake of performance.
 #       This here is a last-resort mechanism if you have no other options to supress 
 #       specific places/warning.
-skipfile: .*/generated/.*,src/main/Foo.java
+#skipfile: .*/generated/.*,src/main/Foo.java
 
 # Target directory to place the IDEA inspection XML result files. Default: target/inspection-results
-resultdir: target/inspection-results
+#resultdir: target/inspection-results
 
 # IDEA installation home directory. Default: IDEA_HOME environment variable or "idea".
 # ideahome: /home/ben/devel/idea
@@ -40,7 +41,7 @@ resultdir: target/inspection-results
 # dir: .
 
 # Use this inspection profile file located ".idea/inspectionProfiles".
-profile: bentolor_inspections.xml
+profile: bentolor_2018.xml
 
 # IDEA project root directory containing the ".idea" directory
 # rootdir: .
