@@ -5,6 +5,7 @@ Benjamin Schmid, <benjamin.schmid@exxcellent.de>
 A little command-line tool to integrate the awesome IntelliJ IDEA code inspections
 in your continuous integration (CI) process using Jenkins, Bamboo, et. al.
 
+[![Build Status](https://api.travis-ci.org/bentolor/idea-cli-inspector.svg?branch=master)]
 
 == Why this tool?
 IntelliJ IDEA offers a vast amount of very high-quality, built-in code inspections.
