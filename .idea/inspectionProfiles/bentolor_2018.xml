@@ -1,8 +1,7 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
-    <description>IDEA 2016.2 Inspection Profile @bentolor. Last update: 2016-08-03</description>
-    <option name="myName" value="bentolor-inspections" />
-    <option name="myLocal" value="true" />
+    <description>[IDEA 2017.1.2] eXXcellent inspection profile – @bentolor | Last update: 2017-04-24</description>
+    <option name="myName" value="bentolor-2018" />
     <inspection_tool class="'var' could be a 'val'" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="AbstractClassNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">
       <option name="m_regex" value="Abstract[A-Za-z\d]*" />
@@ -10,7 +9,6 @@
     <inspection_tool class="AbstractClassWithoutAbstractMethods" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="AbstractMethodOverridesAbstractMethod" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoreJavaDoc" value="true" />
-      <option name="ignoreAnnotations" value="true" />
     </inspection_tool>
     <inspection_tool class="AbstractValueInTrait" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="AccessToNonThreadSafeStaticFieldFromInstance" enabled="true" level="ERROR" enabled_by_default="true">
@@ -34,7 +32,7 @@
     <inspection_tool class="AndroidLintUseCheckPermission" enabled="false" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="AnnotationNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">
       <option name="m_regex" value="[A-Z][A-Za-z\d]*" />
-      <option name="m_minLength" value="8" />
+      <option name="m_minLength" value="4" />
       <option name="m_maxLength" value="64" />
     </inspection_tool>
     <inspection_tool class="Annotator" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
@@ -64,6 +62,7 @@
       <option name="onlyWarnOnBoolean" value="false" />
     </inspection_tool>
     <inspection_tool class="AssertsWithoutMessages" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="AssignmentOrReturnOfFieldWithMutableType" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="AssignmentToForLoopParameter" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="m_checkForeachParameters" value="true" />
     </inspection_tool>
@@ -138,6 +137,7 @@
     <inspection_tool class="CastConflictsWithInstanceof" enabled="true" level="SERVER PROBLEM" enabled_by_default="true" />
     <inspection_tool class="CastThatLosesPrecision" enabled="true" level="INFO" enabled_by_default="true">
       <option name="ignoreIntegerCharCasts" value="false" />
+      <option name="ignoreOverflowingByteCasts" value="false" />
     </inspection_tool>
     <inspection_tool class="CastToIncompatibleInterface" enabled="true" level="SERVER PROBLEM" enabled_by_default="true" />
     <inspection_tool class="CatchGenericClass" enabled="true" level="INFO" enabled_by_default="true" />
@@ -287,7 +287,6 @@
     <inspection_tool class="DeprecatedDefenderSyntax" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="DeprecatedGemInspection" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="DisjointPackage" enabled="true" level="INFO" enabled_by_default="true" />
-    <inspection_tool class="DivideByZero" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DivideByZeroJS" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DocumentWriteJS" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="DoubleCheckedLocking" enabled="true" level="ERROR" enabled_by_default="true">
@@ -298,7 +297,7 @@
     <inspection_tool class="Duplicate function" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="DuplicateBooleanBranch" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="DuplicateCondition" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="ignoreMethodCalls" value="true" />
+      <option name="ignoreSideEffectConditions" value="true" />
     </inspection_tool>
     <inspection_tool class="DuplicateFunction" enabled="false" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="DuplicateMnemonic" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -750,8 +749,8 @@
     <inspection_tool class="InspectionUsingGrayColors" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="InstanceMethodNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">
       <option name="m_regex" value="[a-z][A-Za-z\d]*" />
-      <option name="m_minLength" value="4" />
-      <option name="m_maxLength" value="48" />
+      <option name="m_minLength" value="3" />
+      <option name="m_maxLength" value="50" />
     </inspection_tool>
     <inspection_tool class="InstanceVariableInitialization" enabled="true" level="INFO" enabled_by_default="false">
       <scope name="Tests" level="INFO" enabled="false">
@@ -821,7 +820,7 @@
       <exclude classes="Math" />
     </inspection_tool>
     <inspection_tool class="JSUnresolvedLibraryURL" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
-    <inspection_tool class="JSUnusedGlobalSymbols" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="JSUnusedGlobalSymbols" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="JSUnusedLocalSymbols" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="myIgnoreUnusedFunctionParameters" value="true" />
     </inspection_tool>
@@ -978,21 +977,17 @@
       <option name="m_ignoreForLoopParameters" value="false" />
       <option name="m_ignoreCatchParameters" value="false" />
       <option name="m_regex" value="[a-z][A-Za-z\d]*" />
-      <option name="m_minLength" value="1" />
-      <option name="m_maxLength" value="25" />
+      <option name="m_minLength" value="2" />
+      <option name="m_maxLength" value="50" />
     </inspection_tool>
     <inspection_tool class="LogStatementGuardedByLogCondition" enabled="true" level="INFO" enabled_by_default="false">
       <scope name="Production" level="INFO" enabled="true" />
     </inspection_tool>
     <inspection_tool class="LoggerInitializedWithForeignClass" enabled="true" level="ERROR" enabled_by_default="true">
-      <option name="loggerClassName" value="org.apache.log4j.Logger,org.slf4j.LoggerFactory,org.apache.commons.logging.LogFactory,java.util.logging.Logger" />
       <option name="loggerFactoryMethodName" value="getLogger,getLogger,getLog,getLogger" />
     </inspection_tool>
     <inspection_tool class="LoggingConditionDisagreesWithLogStatement" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="LongLine" enabled="true" level="INFO" enabled_by_default="true">
-      <scope name="Tests" level="ERROR" enabled="true" />
-      <scope name="Production" level="ERROR" enabled="true" />
-    </inspection_tool>
+    <inspection_tool class="LongLine" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="LoopVariableNotUpdated" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="MapReplaceableByEnumMap" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="Method with Unit result type defined like function" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -1142,9 +1137,9 @@
     <inspection_tool class="PackageDotHtmlMayBePackageInfo" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="PackageInfoWithoutPackage" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="PackageNamingConvention" enabled="true" level="ERROR" enabled_by_default="true">
-      <option name="m_regex" value="[a-z]*" />
+      <option name="m_regex" value="[a-z\.]*" />
       <option name="m_minLength" value="2" />
-      <option name="m_maxLength" value="16" />
+      <option name="m_maxLength" value="128" />
     </inspection_tool>
     <inspection_tool class="PackageWithTooFewClasses" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <option name="limit" value="3" />
@@ -1219,6 +1214,9 @@
       <scope name="Production" level="ERROR" enabled="true" />
     </inspection_tool>
     <inspection_tool class="ReferenceMustBePrefixed" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RefusedBequest" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoreEmptySuperMethods" value="false" />
+    </inspection_tool>
     <inspection_tool class="RelativeImport" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="RemoveRedundantReturn" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="Replace with backquote" enabled="false" level="INFO" enabled_by_default="false" />
@@ -1226,9 +1224,6 @@
     <inspection_tool class="ReplaceAssignmentWithOperatorAssignmentJS" enabled="true" level="WARNING" enabled_by_default="true" />
     <inspection_tool class="ReplaceWithBackquote" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="ReplaceWithSubshell" enabled="false" level="INFO" enabled_by_default="false" />
-    <inspection_tool class="RequiredAttributes" enabled="true" level="WARNING" enabled_by_default="true">
-      <option name="myAdditionalRequiredHtmlAttributes" value="src" />
-    </inspection_tool>
     <inspection_tool class="ReservedWordUsedAsNameJS" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="RestRoleInspection" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="ignoredRoles">
@@ -1366,11 +1361,6 @@
       <option name="insideTryAllowed" value="true" />
     </inspection_tool>
     <inspection_tool class="Sonar.Violations" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
-      <option name="processCode" value="true" />
-      <option name="processLiterals" value="true" />
-      <option name="processComments" value="true" />
-    </inspection_tool>
     <inspection_tool class="SpringDataJpaMethodInconsistencyInspection" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="SpringIntegrationDeprecations21" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="SpringIntegrationModel" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -1402,9 +1392,7 @@
       <option name="warnLevel" value="2" />
     </inspection_tool>
     <inspection_tool class="StringConcatenationInFormatCall" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="StringConcatenationInLoops" enabled="true" level="INFO" enabled_by_default="true">
-      <option name="m_ignoreUnlessAssigned" value="true" />
-    </inspection_tool>
+    <inspection_tool class="StringConcatenationInLoops" enabled="true" level="INFO" enabled_by_default="true" />
     <inspection_tool class="StringEquals" enabled="true" level="INFO" enabled_by_default="false">
       <scope name="Production" level="INFO" enabled="true" />
     </inspection_tool>
@@ -1530,6 +1518,7 @@
     </inspection_tool>
     <inspection_tool class="UnnecessaryFullyQualifiedName" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="m_ignoreJavadoc" value="false" />
+      <option name="ignoreInModuleStatements" value="true" />
     </inspection_tool>
     <inspection_tool class="UnnecessaryInheritDoc" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="UnnecessaryJavaDocLink" enabled="true" level="WEAK WARNING" enabled_by_default="true">
