@@ -15,6 +15,11 @@
 
 *  The `-v` option now also increases the verbosity of the IDEA process.
 
+* Add example for usage with Travis CI / Docker
+
+*  *Eat your own dogfood* - `idea-cli-inspector` now tests itself via Travis CI using  Gradle &
+   `idea-cli-inspector`
+
 | 1.5.4
 | * CLI options override config values inside the `.ideainspect` file.
 
