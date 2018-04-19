@@ -48,7 +48,7 @@ def ideaWrapperTimeout = 1200  // Minutes
 //
 def configOpts = args.toList()
 configOpts.addAll(parseConfigFile())
-def OptionAccessor cliOpts = parseCli(configOpts)
+OptionAccessor cliOpts = parseCli(configOpts)
 
 // Levels
 if (cliOpts.l) {
@@ -66,13 +66,15 @@ if (cliOpts.t) resultDir = cliOpts.t
 File ideaPath = findIdeaExecutable(cliOpts)
 // Passed project root Directory or working directory
 def rootDir = cliOpts.r ? new File(cliOpts.r) : Paths.get(".").toAbsolutePath().normalize().toFile()
+//noinspection GroovyAssignabilityCheck
 def rootfilePath = cliOpts.rf ? new File(cliOpts.rf) : rootDir
 
 def dotIdeaDir = new File(rootDir, ".idea")
 assertPathIsDir(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` property to the location of your `.idea` project")
 // Inspection Profile
+//noinspection GroovyAssignabilityCheck,GroovyAssignabilityCheck
 def profilePath = cliOpts.p ? new File(cliOpts.p) : null
-if( profilePath == null || !profilePath.isAbsolute() ) {
+if( profilePath == null || !profilePath.absolute) {
   // if the given arg is not a full path, then try with a path relative to the .idea dir
   profileName = cliOpts.p ?: "Project_Default.xml"
   profilePath = new File(dotIdeaDir.path + File.separator + "inspectionProfiles" + File.separator + profileName)
@@ -80,7 +82,7 @@ if( profilePath == null || !profilePath.isAbsolute() ) {
 assertPathIsFile(profilePath, "IDEA inspection profile file")
 
 // Prepare result directory
-def resultPath = new File(resultDir);
+def resultPath = new File(resultDir)
 if (!resultPath.absolute) resultPath = new File(rootDir, resultDir)
 if (resultPath.exists() && !resultPath.deleteDir()) fail "Unable to remove result dir " + resultPath.absolutePath
 if (!resultPath.mkdirs()) fail "Unable to create result dir " + resultPath.absolutePath
@@ -212,7 +214,7 @@ private OptionAccessor parseCli(List<String> configArgs) {
 
   if (!opt) {
     System.exit(1)
-  }; // will print usage automatically
+  } // will print usage automatically
   if (opt.help) {
     println "\nThis tools runs IntelliJ IDEA inspection via command line and"
     println "tries to parse the output. \n"
@@ -221,13 +223,14 @@ private OptionAccessor parseCli(List<String> configArgs) {
     println "     -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR\n"
     println "For more convenience you can pass all options in a `.ideainspect` file"
     println "instead of passing it via command line\n"
-    cliBuilder.usage();
-    System.exit(1);
+    cliBuilder.usage()
+    System.exit(1)
   }
   if (verbose) {
     List<String> optDebug = []
-    for (Option o : cliBuilder.options.options)
-       optDebug.add(o.longOpt << ": " << opt.getProperty(o.longOpt))
+    //noinspection GroovyAssignabilityCheck
+    for (Option ocliOpt : cliBuilder.options.options)
+       optDebug.add(ocliOpt.longOpt << ": " << opt.getProperty(ocliOpt.longOpt))
     println "Effective configuration: " << optDebug.join(", ")
   }
 
@@ -243,13 +246,13 @@ private File findIdeaExecutable(OptionAccessor cliOpts) {
   switch (platform) {
     case ~/^Windows.*/:
       scriptPath = "bin" + File.separator + executable + ".bat"
-      break;
+      break
     case "Mac OS X":
       scriptPath = "Contents/MacOS/" + executable
-      break;
+      break
     default:
       scriptPath = "bin/" + executable + ".sh"
-      break;
+      break
   }
 
   def ideaExecutable = new File(ideaHome + File.separator + scriptPath)
@@ -281,9 +284,9 @@ private File applyScopeViaPropFile(OptionAccessor cliOpts) {
   }
   println "\nYou defined a analysis scope. We need to temporarily modify `idea.properties` to get this working."
 
-  def File ideaPropsFile = findIdeaProperties(cliOpts)
+  File ideaPropsFile = findIdeaProperties(cliOpts)
   def newPropsContent = new ArrayList<String>()
-  def File propertiesBackupFile = null
+  File propertiesBackupFile = null
 
   if (ideaPropsFile.exists()) {
     // If the file already exists we copy it
@@ -309,7 +312,7 @@ private File applyScopeViaPropFile(OptionAccessor cliOpts) {
  * Revert to original IDEA configuration from backup.
  */
 private cleanupIdeaProps(OptionAccessor cliOpts, File backupFile) {
-  if (!cliOpts.sc || backupFile == null) return;
+  if (!cliOpts.sc || backupFile == null) return
   File ideaPropsFile = findIdeaProperties(cliOpts)
   ideaPropsFile.delete()
   if (backupFile?.exists()) {
@@ -340,11 +343,11 @@ private File findIdeaProperties(OptionAccessor cliOpts) {
 
 @SuppressWarnings("GroovyUntypedAccess")
 private analyzeResult(File resultPath, List<String> acceptedLeves,
-                      List skipResults, List skipIssueFilesRegex) {
+                      List skipResults, List<String> skipIssueFilesRegex) {
 
   printAnalysisHeader(resultPath, acceptedLeves, skipResults, skipIssueFilesRegex)
 
-  def allGood = true;
+  def allGood = true
 
   resultPath.eachFile(FileType.FILES) { file ->
 
@@ -367,12 +370,12 @@ private analyzeResult(File resultPath, List<String> acceptedLeves,
       if (acceptedLeves.contains(severity) && !fileShouldBeIgnored) {
         String problemDesc = problem.description.text()
         String line = problem.line.text()
-        fileIssues << "$severity $affectedFile:$line -- $problemDesc";
+        fileIssues << "$severity $affectedFile:$line -- $problemDesc"
       }
     }
 
     if (!fileIssues.empty) {
-      allGood = false;
+      allGood = false
       System.err.println("--- $xmlFileName")
       System.err.println(fileIssues.join("\n"))
       System.err.println("")
@@ -421,7 +424,7 @@ private static String workaroundUnclosedProblemXmlTags(String fileContents) {
  * @param hint an optional hint what to do now...
  */
 private void assertPathIsDir(File path, String description, String hint = null) {
-  if (!path.exists() || !path.isDirectory()) {
+  if (!path.exists() || !path.directory) {
     println "PROBLEM: " + description + " `" + path.path + "` not found or not a directory!"
     if (hint) println "\n" + hint
     println "\nAborting."
@@ -435,7 +438,7 @@ private void assertPathIsDir(File path, String description, String hint = null) 
  * @param hint an optional hint what to do now...
  */
 private void assertPathIsFile(File path, String description, String hint = null) {
-  if (!path.exists() || !path.isFile()) {
+  if (!path.exists() || !path.file) {
     println "PROBLEM: " + description + " `" + path.path + "` not found or not a file!"
     if (hint) println "\n" + hint
     println "\nAborting."
