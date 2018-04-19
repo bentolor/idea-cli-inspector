@@ -28,4 +28,5 @@ atlassian-ide-plugin.xml
 
 # Custom link to your idea installation
 /idea
-
+/.gradle
+/build
