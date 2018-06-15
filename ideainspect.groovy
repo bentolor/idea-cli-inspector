@@ -161,7 +161,7 @@ private List<String> parseConfigFile() {
 
     //noinspection GroovyMissingReturnStatement
     configFile.eachLine { line ->
-      def values = line.split(':')
+      def values = line.split(':', 2)
       if (!line.startsWith('#') && values.length == 2) {
         configArgs.push('--' + values[0].trim())
         configArgs.push(values[1].trim())
