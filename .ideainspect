@@ -1,5 +1,5 @@
 # Levels to look for. Default: WARNING,ERROR
-#levels: WARNING,ERROR,INFO
+#levels= WARNING,ERROR,INFO
 
 # Apply an "Custom scope" for the analysis run
 # This is _the prefered way_ to limit your inspection run to a part of your project files
@@ -11,7 +11,7 @@
 # 2) Share the .idea/scopes/scopename.xml with the project
 # 3) Use the _name_ of the scope (not the file).
 # 4) Stick to a single word for best compability
-scope: inspector-code
+scope= inspector-code
 
 # Inspection result files to skip. For example "TodoComment" or "TodoComment.xml".
 #
@@ -19,8 +19,8 @@ scope: inspector-code
 #       For the sake of performance better disable these inspections within your 
 #       inspection profile. This here is a last-resort mechanism if you want them
 #       to appear in your IDE but not your CI process
-#skip: TodoComment,Annotator
-skip: GroovyAssignabilityCheck
+#skip= TodoComment,Annotator
+skip= GroovyAssignabilityCheck
 
 # Ignore issues affecting source files matching given regex. Example ".*/generated/.*".
 #
@@ -29,23 +29,23 @@ skip: GroovyAssignabilityCheck
 #       for the sake of performance.
 #       This here is a last-resort mechanism if you have no other options to supress 
 #       specific places/warning.
-#skipfile: .*/generated/.*,src/main/Foo.java
+#skipfile= .*/generated/.*,src/main/Foo.java
 
-# Target directory to place the IDEA inspection XML result files. Default: target/inspection-results
-#resultdir: target/inspection-results
+# Target directory to place the IDEA inspection XML result files. Default= target/inspection-results
+#resultdir= target/inspection-results
 
-# IDEA installation home directory. Default: IDEA_HOME environment variable or "idea".
-# ideahome: /home/ben/devel/idea
+# IDEA installation home directory. Default= IDEA_HOME environment variable or "idea".
+ideahome= /home/ben/devel/idea
 
 # Limit IDEA inspection to this directory (This overrides scoping)
-# dir: .
+# dir= .
 
 # Use this inspection profile file located ".idea/inspectionProfiles".
-profile: bentolor_2018.xml
+profile= bentolor_2018.xml
 
 # IDEA project root directory containing the ".idea" directory
-# rootdir: .
+rootdir= .
 
 # Full path to the local idea.properties file. More info at:
 # http://tools.android.com/tech-docs/configuration
-# iprops: /Users/Shared/User/Library/Preferences/AndroidStudio2.1/idea.properties
+# iprops= /Users/Shared/User/Library/Preferences/AndroidStudio2.1/idea.properties
