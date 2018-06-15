@@ -12,7 +12,8 @@ cache:
 before_install:
   - sudo add-apt-repository ppa:mmk2410/intellij-idea -y
   - sudo apt-get update -q
-  - sudo apt-get install intellij-idea-community -y
+  - sudo apt-get install apt dpkg -y -q
+  - sudo apt-get install intellij-idea-community -y -q
 #  - sudo apt-get install groovy -y
 
 install:
