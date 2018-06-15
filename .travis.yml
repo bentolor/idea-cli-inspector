@@ -26,4 +26,4 @@ script:
   - gradle check
   # Copy idea configuration template (mostly .IntelliJIdea2018.1/config/options/jdk.table.xml)
   - cp -r ./etc/travis-agent/.IntelliJIdea2018.1 /home/travis/.IdeaIC2018.1
-  - ./ideainspect.groovy -v -i /opt/intellij-idea-community
+  - travis_wait ./ideainspect.groovy -v -i /opt/intellij-idea-community
