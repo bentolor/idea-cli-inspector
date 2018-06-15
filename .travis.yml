@@ -10,19 +10,19 @@ cache:
     - $HOME/.gradle/wrapper/
 
 before_install:
-  - sudo add-apt-repository ppa:mmk2410/intellij-idea -y
-  - sudo apt-get update -q
-  - sudo apt-get install intellij-idea-community -y
+#  - sudo add-apt-repository ppa:mmk2410/intellij-idea -y
+#  - sudo apt-get update -q
+#  - sudo apt-get install intellij-idea-community -y
 #  - sudo apt-get install groovy -y
 
 install:
   - gradle assemble
   # - wget https://github.com/bentolor/idea-cli-inspector/archive/master.zip
   # - unzip master.zip
-  - sudo chmod -R aog+w /opt/intellij-idea-community/bin
+ # - sudo chmod -R aog+w /opt/intellij-idea-community/bin
 
 script:
   - gradle check
   # Copy idea configuration template (mostly .IntelliJIdea2018.1/config/options/jdk.table.xml)
-  - cp -r ./etc/travis-agent/.IntelliJIdea2018.1 /home/travis/.IdeaIC2018.1
-  - ./ideainspect.groovy -v -i /opt/intellij-idea-community
+#  - cp -r ./etc/travis-agent/.IntelliJIdea2018.1 /home/travis/.IdeaIC2018.1
+#  - ./ideainspect.groovy -v -i /opt/intellij-idea-community
