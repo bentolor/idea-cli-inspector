@@ -1,0 +1,15 @@
+.*
+build*
+etc
+idea
+target
+*.asciidoc
+*.iml
+*.txt
+Dockerfile
+*/*/*/.java/fonts
+*/*/*/system
+*/*/*/config/options/*.xml
+*/*/*/config/*.xml
+*/*/*/config/plugins
+!*/*/*/config/options/jdk.table.xml

@@ -1,0 +1,48 @@
+= Adjusting & Building Docker-Images for IntelliJ IDEA CLI Inspector
+Benjamin Schmid, <setec@gmx.net>
+
+== General overview
+
+The `Dockerfile` provided in this repository will create a minimum,
+Java-based Docker environment which is able to run a IDEA CLI
+inspection.
+
+It is based on
+
+* IntelliJ Community Edition (vanilla)
+* OpenJDK Java 8
+
+In your practical usage scenario you might probably have different
+needs like:
+
+* Using the commercial Ultimate Edition for more support
+* using additional inspections provided by plugins
+* additional Tooling (like NodeJS)
+
+This guide tries to explain how to customize your idea-cli-inspector
+instance.
+
+== Visually installing/adjusting IDEA settings
+
+IntelliJ stores its settings in a `IdeaIC2018.2/config` directory
+(or `.IntelliJ2018.2/config` for Ultimate editions). Most of these
+settings do not matter so they are excluded in the `.dockerignore`
+file.
+
+But if you want i.e. install additional plugins, set the licence
+server for the Ultimate Edition or add/define additional SDKs you
+can do this interactive.
+
+Therefore just run
+
+```
+xhost +
+docker run -it --rm -e DISPLAY=$DISPLAY
+          -v /tmp/.X11-unix:/tmp/.X11-unix  \
+          -v `pwd`/home:/home \
+          bentolor/idea-cli-inspector su ideainspect -c '/srv/idea.latest/bin/idea.sh'
+```
+
+This will launch IDEA inside the docker container. After configuration check the
+modifications in `home/ideainspect` and add them to the Container (i.e. adjusting
+`.dockerignore`).
