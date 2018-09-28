@@ -7,7 +7,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 /*
- * Copyright 2015-2016 Benjamin Schmid, @bentolor
+ * Copyright 2015-2018 Benjamin Schmid, @bentolor
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.nio.file.Paths
     Note to the reader:
      This is my very first Groovy script. Please be nice.
 */
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.6 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.7 - @bentolor"
 
 // Defaults
 def resultDir = "target/inspection-results"

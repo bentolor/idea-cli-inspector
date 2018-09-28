@@ -5,6 +5,9 @@
 | Version
 | Change
 
+| 1.7
+| * Support for Docker-based execution
+
 | 1.6
 | * New `--rootfile` option to allow inspection of maven projects without `.iml` files committed to SCM. +
 
@@ -20,8 +23,8 @@
 *  *Eat your own dogfood* - `idea-cli-inspector` now tests itself via Travis CI using  Gradle &
    `idea-cli-inspector`
 
-*  Fix problem on parsing values with contains `:`, i.e. like the path to 
-   the IDEA installation directory in windows like `C:\Program Files\…`. 
+*  Fix problem on parsing values with contains `:`, i.e. like the path to
+   the IDEA installation directory in windows like `C:\Program Files\…`.
    Thanks to @ColmBhandal. Fixes #19
 
 | 1.5.4
