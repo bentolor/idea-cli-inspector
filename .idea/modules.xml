@@ -2,7 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ben.projects.idea-cli-inspector.git.iml" filepath="$PROJECT_DIR$/.idea/modules/ben.projects.idea-cli-inspector.git.iml" />
       <module fileurl="file://$PROJECT_DIR$/idea-cli-inspector.git.iml" filepath="$PROJECT_DIR$/idea-cli-inspector.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/idea-cli-inspector.git.main.iml" filepath="$PROJECT_DIR$/.idea/modules/idea-cli-inspector.git.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/idea-cli-inspector.git.test.iml" filepath="$PROJECT_DIR$/.idea/modules/idea-cli-inspector.git.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/projects.idea-cli-inspector.git.iml" filepath="$PROJECT_DIR$/.idea/modules/projects.idea-cli-inspector.git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/projects.idea-cli-inspector.git.main.iml" filepath="$PROJECT_DIR$/.idea/modules/projects.idea-cli-inspector.git.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/projects.idea-cli-inspector.git.test.iml" filepath="$PROJECT_DIR$/.idea/modules/projects.idea-cli-inspector.git.test.iml" />
     </modules>
   </component>
 </project>
