@@ -100,6 +100,26 @@ if (cliOpts.d) ideaArgs << "-d" << cliOpts.d
 // Did user define a Analysis "Scope"? We need a dirty workaround
 File origPropFile = applyScopeViaPropFile(cliOpts)
 
+if (cliOpts.pre) {
+  if (!cliOpts.n) {
+    def  preTimeout = 1200
+    println "Executing '${cliOpts.pre}' for maximum ${preTimeout}s"
+    def sout = new StringBuilder(), serr = new StringBuilder()
+    def preScript = cliOpts.pre.execute([], rootDir)
+    preScript.consumeProcessOutput(sout, serr)
+    preScript.waitForOrKill(preTimeout * 1000)
+    preScript.waitForProcessOutput()
+    print "$sout$serr"
+
+    def exitValue = preScript.exitValue()
+    if (exitValue != 0) fail("Pre-process script returned with an unexpected return code of $exitValue")
+
+  } else {
+    println "Dry-run: Would execute: '${cliOpts.pre}'"
+  }
+}
+
+
 println "\n#"
 println "# Running IDEA IntelliJ Inspection"
 println "#"
@@ -114,6 +134,7 @@ if (!cliOpts.n) {
   def ideaProcess = processBuilder.start()
   ideaProcess.consumeProcessOutput((OutputStream) System.out, System.err)
   ideaProcess.waitForOrKill(1000 * 60 * ideaWrapperTimeout)
+  ideaProcess.waitForProcessOutput()
   exitValue = ideaProcess.exitValue()
   println "~" * 80
 } else {
@@ -207,6 +228,8 @@ private OptionAccessor parseCli(List<String> configArgs) {
       'Enable verbose logging'
     n argName: 'dry-run', longOpt: 'dry-run', args: 0,
       'Dry-run: Do not start IDEA, but run parsing'
+    pre argName: 'Command', longOpt: 'preexec', args: Option.UNLIMITED_VALUES,
+        'Execute the passed command prior to starting IDEA.'
     //to argName: 'minutes', longOpt: 'timeout', args: 1,
     //  'Timeout in Minutes to wait for IDEA to complete the inspection. Default:'
   }
