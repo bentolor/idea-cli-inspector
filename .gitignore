@@ -17,10 +17,7 @@
 .idea/uiDesigner.xml
 
 # Plusings
-.idea/gradle.xml
 .idea/libraries
-atlassian-ide-plugin.xml
-.idea/sonarIssues.xml
 
 # IntelliJ
 /out/

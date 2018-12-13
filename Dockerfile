@@ -13,8 +13,7 @@ MAINTAINER  Benjamin Schmid <dockerhub@benjamin-schmid.de>
 # First install some basic tools to get them or their latest versions (wget, apt).
 RUN apt-get clean && \
     apt-get update && \
-    apt-get install -y \
-        wget sudo \
+    apt-get install -y wget sudo \
 #        curl zip \
 #        openssh-client git subversion \
 #        software-properties-common  \
@@ -58,11 +57,11 @@ RUN useradd -mUs /bin/bash ideainspect
 # Install various tools into /srv
 #
 # Install IntelliJ IDEA
-ENV V_IDEA 2018.2.4
+ENV V_IDEA 2018.3.1
 # Set C for Community or U for Ultimate
 ENV V_IDEA_EDITION C
-ENV IDEA_CONFDIR .IdeaIC2018.2
-# For Ultimate it is: ENV IDEA_CONFDIR .IntelliJIdea2018.2
+ENV IDEA_CONFDIR .IdeaIC2018.3
+# For Ultimate it is: ENV IDEA_CONFDIR .IntelliJIdea2018.3
 RUN cd /srv && \
     wget -nv https://download.jetbrains.com/idea/ideaI$V_IDEA_EDITION-$V_IDEA-no-jdk.tar.gz && \
     tar xf ideaI$V_IDEA_EDITION-$V_IDEA-no-jdk.tar.gz && \
@@ -76,7 +75,6 @@ RUN cd /srv && \
 # Point inspector to the new home
 # NOTE: This only takes effect for user `root`. For user ideainspect check home/ideainspect/.bashrc
 ENV IDEA_HOME /srv/idea.latest
-
 
 # Install Android SDK Tools
 #RUN mkdir -p /srv/android-sdk && cd /srv/android-sdk && \
@@ -105,12 +103,20 @@ ENV IDEA_HOME /srv/idea.latest
 #    rm /var/lib/apt/lists/*.* && \
 #    rm -fr /tmp/* /var/tmp/*
 
-ENV A A
 # Copy files into container
-COPY / /
+COPY /idea-cli-inspector /
+COPY /docker-entrypoint.sh /
 
-# Fix `root` users from COPY and other commands
+# Bash Environments & Default IDEA config
+COPY /home /home
 RUN chown -R ideainspect:ideainspect /home/ideainspect
+
+# Prepare a sample project
+COPY / /project
+RUN chown -R ideainspect:ideainspect /project
+
+# Initial run to populate index i.e. for JDKs
+RUN [ "/docker-entrypoint.sh", "-r", "/project" ]
 
 # Provide an entry point script which also creates starts Bamboo with a
 # dedicated user
