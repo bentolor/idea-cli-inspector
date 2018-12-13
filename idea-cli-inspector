@@ -175,7 +175,7 @@ private List<String> parseConfigFile() {
 }
 
 private OptionAccessor parseCli(List<String> configArgs) {
-  def cliBuilder = new CliBuilder(usage: 'groovy ideainspect.groovy [options]',
+  def cliBuilder = new CliBuilder(usage: 'groovy idea-cli-inspector [options]',
                                   stopAtNonOption: false)
   cliBuilder.with {
     h argName: 'help', longOpt: 'help', 'Show usage information and quit'
@@ -220,7 +220,7 @@ private OptionAccessor parseCli(List<String> configArgs) {
     println "\nThis tools runs IntelliJ IDEA inspection via command line and"
     println "tries to parse the output. \n"
     println "Example usage:"
-    println "  ./ideainspect.groovy -i ~/devel/idea -r . -p myinspections.xml \\"
+    println "  ./idea-cli-inspector -i ~/devel/idea -r . -p myinspections.xml \\"
     println "     -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR\n"
     println "For more convenience you can pass all options in a `.ideainspect` file"
     println "instead of passing it via command line\n"

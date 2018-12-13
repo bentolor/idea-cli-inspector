@@ -84,7 +84,7 @@ include::.ideainspect[]
 ----
 
 === Command line based usage
-For a full / up-to-date list of options please run `ideainspect.groovy -h`:
+For a full / up-to-date list of options please run `idea-cli-inspector -h`:
 
 ----
 = IntellIJ IDEA Code Analysis Wrapper - v1.5.2 - @bentolor
@@ -93,13 +93,13 @@ This tools runs IntelliJ IDEA inspection via command line and
 tries to parse the output.
 
 Example usage:
-  ./ideainspect.groovy -i ~/devel/idea -r . -p myinspections.xml \
+  ./idea-cli-inspector -i ~/devel/idea -r . -p myinspections.xml \
      -d src/main/java -s unused,Annotator,TodoComment.xml -l ERROR
 
 For more convenience you can pass all options in a `.ideainspect` file
 instead of passing it via command line
 
-usage: groovy ideainspect.groovy [options]
+usage: groovy idea-cli-inspector [options]
  -d,--dir <dir>           Limit IDEA inspection to this directory.
                           Overrides the scope argument.
  -h,--help                Show usage information and quit
@@ -138,7 +138,7 @@ usage: groovy ideainspect.groovy [options]
 
 
 == Example usage
-    $ groovy ideainspect.groovy \
+    $ groovy idea-cli-inspector \
         -i ~/devel/idea \
         -r ~/projects/p1 \
         -p myinspections.xml \
@@ -174,7 +174,7 @@ after "You may consider not to share the following"). +
 For such projects, the inspection must be launched by passing the path to the maven/gradle project file like in the
 following example:
 
-    $ groovy ideainspect.groovy \
+    $ groovy idea-cli-inspector \
         --ideahome ~/devel/idea \
         --rootdir ~/projects/p1 \
         --rootfile ~/projects/p1/pom.xml
@@ -185,7 +185,7 @@ following example:
 == Example output
 
 ----
-➜ idea-cli-inspector.git git:(master) ✗ ./ideainspect.groovy -i ~/devel/idea -r ../dashboard.git -p bens_idea15_2015_11.xml -d server -s Annotator,JSUnresolvedLibraryURL.xml,JavaDoc,TodoComment -l ERROR,WARNING
+➜ idea-cli-inspector.git git:(master) ✗ ./idea-cli-inspector -i ~/devel/idea -r ../dashboard.git -p bens_idea15_2015_11.xml -d server -s Annotator,JSUnresolvedLibraryURL.xml,JavaDoc,TodoComment -l ERROR,WARNING
 
 = IntellIJ IDEA Code Analysis Wrapper - v1.0 - @bentolor
 #
@@ -296,7 +296,7 @@ script:
   - cp -r ./tools/idea-cli-inspector/root/.IntelliJIdea2018.1 /home/travis/
   # Duplicate for community config dir
   - cp -r ./tools/idea-cli-inspector/root/.IntelliJIdea2018.1 /home/travis/.IdeaIC2018.1
-  - ./idea-cli-inspector-master/ideainspect.groovy -i /opt/intellij-idea-community
+  - ./idea-cli-inspector-master/idea-cli-inspector -i /opt/intellij-idea-community
 ----
 
 == Troubleshooting & FAQ
