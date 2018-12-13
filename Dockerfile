@@ -38,7 +38,7 @@ RUN apt-get clean && \
 # Install Java 8, Java 10, Groovy, mongodb-client & graphviz via package repository
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-#                       build-essential \
+                       locales \
 #                       oracle-java8-installer \
 #                       oracle-java8-set-default \
 #                       oracle-java8-unlimited-jce-policy \
@@ -102,6 +102,15 @@ ENV IDEA_HOME /srv/idea.latest
 #    apt-get clean && \
 #    rm /var/lib/apt/lists/*.* && \
 #    rm -fr /tmp/* /var/tmp/*
+
+# The default locale is POSIX which breaks UTF-8 based javac files
+# NOTE:
+#    This only taked effect for user root. Check home/ideainspect/.bashrc for main user
+#    environment variables
+RUN locale-gen en_US.UTF-8
+RUN update-locale en_US.UTF8
+ENV LANG "en_US.UTF-8"
+ENV LC_MESSAGES "C"
 
 # Copy files into container
 COPY /idea-cli-inspector /
