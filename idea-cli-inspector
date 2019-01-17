@@ -71,14 +71,24 @@ def rootDir = cliOpts.r ? new File(cliOpts.r) : Paths.get(".").toAbsolutePath().
 def rootfilePath = cliOpts.rf ? new File(cliOpts.rf) : rootDir
 
 def dotIdeaDir = new File(rootDir, ".idea")
-assertPathIsDir(dotIdeaDir, "IDEA project directory", "Please set the `rootdir` property to the location of your `.idea` project")
-// Inspection Profile
+if (!cliOpts.rf) {
+  assertPathIsDir(dotIdeaDir, "IDEA project directory",
+                  "Please set the `rootdir` property to the location of your `.idea` project")
+}
+
+// Retrieve path to Inspection Profile file
 //noinspection GroovyAssignabilityCheck,GroovyAssignabilityCheck
 def profilePath = cliOpts.p ? new File(cliOpts.p) : null
 if( profilePath == null || !profilePath.absolute) {
-  // if the given arg is not a full path, then try with a path relative to the .idea dir
   profileName = cliOpts.p ?: "Project_Default.xml"
-  profilePath = new File(dotIdeaDir.path + File.separator + "inspectionProfiles" + File.separator + profileName)
+  // if the given arg is not a full path, then firs try withing the root dir
+  profilePath = new File(rootDir.path + File.separator + profileName)
+
+  // is it there?
+  if (!profilePath.exists() || !profilePath.file) {
+    // If not try to find the inspection profile within the the .idea dir
+    profilePath = new File(dotIdeaDir.path + File.separator + "inspectionProfiles" + File.separator + profileName)
+  }
 }
 assertPathIsFile(profilePath, "IDEA inspection profile file")
 
@@ -218,9 +228,10 @@ private OptionAccessor parseCli(List<String> configArgs) {
             'file is not located under in the default. \nDefault: `<ideahome>/idea/bin/idea.properties`'
     p argName: 'file', longOpt: 'profile', args: 1,
       'Use this inspection profile file. If given an absolute path, the target file is used, otherwise the arg ' +
-      'denotes a file located under `.idea/inspectionProfiles`. \nDefault: `Project_Default.xml`'
+      'denotes a file located under the projct directory or `.idea/inspectionProfiles` (IDEA default location). ' +
+              '\nDefault: `Project_Default.xml`'
     r argName: 'dir', longOpt: 'rootdir', args: 1,
-      'IDEA project root directory containing the `.idea` directory. Default: Working directory'
+      'IDEA project root directory containing the `.idea` directory. Default: Current working directory'
     rf argName: 'file', longOpt: 'rootfile', args: 1,
             'full path to the pom.xml or build.gradle file for the project. Useful if the project is maven or gradle ' +
                     'based and its rootdir does not contain all the *.iml and .idea/modules.xml files'
@@ -253,8 +264,9 @@ private OptionAccessor parseCli(List<String> configArgs) {
   if (verbose) {
     List<String> optDebug = []
     //noinspection GroovyAssignabilityCheck
-    for (Option ocliOpt : cliBuilder.options.options)
-       optDebug.add(ocliOpt.longOpt << ": " << opt.getProperty(ocliOpt.longOpt))
+    for (Option ocliOpt : cliBuilder.options.options) {
+      optDebug.add(ocliOpt.longOpt << ": " << opt.getProperty(ocliOpt.longOpt))
+    }
     println "Effective configuration: " << optDebug.join(", ")
   }
 
