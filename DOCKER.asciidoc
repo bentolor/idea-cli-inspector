@@ -1,7 +1,18 @@
 = Adjusting & Building Docker-Images for IntelliJ IDEA CLI Inspector
 Benjamin Schmid, <setec@gmx.net>
 
-== General overview
+== Analyzing project using the Docker version of idea-cli-inspector
+
+There is an image `bentolor/idea-cli-inspector` available on Docker Hub which
+you can use to start and run `idea-cli-inspector` without any further
+configuration. The project to be analyzed is expected to be available in
+`/project` within the running container. Example usage:
+
+====
+  docker run --rm -v $(pwd):/project  bentolor/idea-cli-inspector -rf pom.xml -p inspectionprofile.xml
+====
+
+== General overview creating your own Docker containers
 
 The `Dockerfile` provided in this repository will create a minimum,
 Java-based Docker environment which is able to run a IDEA CLI
@@ -21,6 +32,11 @@ needs like:
 
 This guide tries to explain how to customize your idea-cli-inspector
 instance.
+
+NOTE:: link:https://github.com/sylvainlaurent/docker-intellij-inspect[@sylvainlaurent/docker-intellij-inspect]
+ created a very similar approach which is in some aspects more advanced
+ than this implementation. You might also have a look there.
+
 
 == Visually installing/adjusting IDEA settings
 
