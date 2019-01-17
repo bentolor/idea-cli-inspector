@@ -11,12 +11,10 @@ MAINTAINER  Benjamin Schmid <dockerhub@benjamin-schmid.de>
 
 
 # First install some basic tools to get them or their latest versions (wget, apt).
-RUN apt-get clean && \
-    apt-get update && \
-    apt-get install -y wget sudo \
-#        curl zip \
-#        openssh-client git subversion \
-#        software-properties-common  \
+#RUN apt-get clean && \
+RUN  apt-get update && \
+     apt-get install -y wget sudo \
+#        curl zip openssh-client git subversion software-properties-common  \
         && \
 #    apt-get dist-upgrade -yqq && \
     apt-get autoremove --purge -y && \
@@ -57,7 +55,7 @@ RUN useradd -mUs /bin/bash ideainspect
 # Install various tools into /srv
 #
 # Install IntelliJ IDEA
-ENV V_IDEA 2018.3.1
+ENV V_IDEA 2018.3.3
 # Set C for Community or U for Ultimate
 ENV V_IDEA_EDITION C
 ENV IDEA_CONFDIR .IdeaIC2018.3

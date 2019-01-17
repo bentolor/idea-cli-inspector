@@ -24,8 +24,8 @@ instance.
 
 == Visually installing/adjusting IDEA settings
 
-IntelliJ stores its settings in a `IdeaIC2018.2/config` directory
-(or `.IntelliJ2018.2/config` for Ultimate editions). Most of these
+IntelliJ stores its settings in a `IdeaIC2018.3/config` directory
+(or `.IntelliJ2018.3/config` for Ultimate editions). Most of these
 settings do not matter so they are excluded in the `.dockerignore`
 file.
 
