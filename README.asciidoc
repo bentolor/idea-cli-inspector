@@ -7,6 +7,19 @@ in your continuous integration (CI) process using Jenkins, Bamboo, et. al.
 
 [![Build Status](https://api.travis-ci.org/bentolor/idea-cli-inspector.svg?branch=master)]
 
+== Quick start (using Docker and Maven)
+1. Add a valid IDEA inspection profile file to your project (find them at `.idea/inspectionProfiles`)
+2. Run within your project directory:
+====
+  docker run --rm -v $(pwd):/project bentolor/idea-cli-inspector -rf pom.xml -p inspectionprofile.xml
+====
+
+Optionally you can also
+
+* Use/Add a complete IDEA configuration (`.idea`) to your project. This allows more fine control (i.e. defining inspection scopes)
+* add a `.ideainspect` to control i.e. ignored files/inspections and other details. See the example file provided with idea-cli-inspector.
+
+
 == Why this tool?
 IntelliJ IDEA offers a vast amount of very high-quality, built-in code inspections.
 Currently it has more than 1073 inspections to offer. Using project-shared inspection
