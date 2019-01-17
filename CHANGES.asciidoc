@@ -6,7 +6,11 @@
 | Change
 
 | 1.7
-| * Support for Docker-based execution
+| * Support for Docker-based execution. Available on Docker Hub.
+
+* The `-rf` option no longer expects any IDEA configuration (`.idea`) to be present in the project.
+
+* More robust processing: No longer need to pass only absolute paths to `-rf` or `-p`
 
 | 1.6
 | * New `--rootfile` option to allow inspection of maven projects without `.iml` files committed to SCM. +
