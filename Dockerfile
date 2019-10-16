@@ -137,4 +137,4 @@ RUN [ "/docker-entrypoint.sh", "-r", "/project" ]
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Define default command.
-CMD ["--help"]
+#CMD ["--help"]
