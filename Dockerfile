@@ -5,7 +5,7 @@
 #  as template for creatng your own, derived docker image in case i.e.
 #  you want to use the Ultimate edition or need additional build tools.
 #
-FROM        openjdk:8
+FROM        adoptopenjdk:11-jdk-hotspot
 MAINTAINER  Benjamin Schmid <dockerhub@benjamin-schmid.de>
 
 
@@ -76,19 +76,19 @@ RUN useradd -mUs /bin/bash ideainspect
 # 3. The first run to pre-populate the indexes won't work with ultimate edition, yet. This is due to outstanding features in
 #    the current Docker daemon. See https://github.com/moby/buildkit/issues/763
 #
-ENV V_IDEA 2018.3.6
+ENV V_IDEA 2019.2.3
 ENV V_IDEA_EDITION C
-ENV IDEA_CONFDIR .IntelliJIdea2018.3
-# For Ultimate it is: ENV IDEA_CONFDIR .IntelliJIdea2018.3
+ENV IDEA_CONFDIR .IntelliJIdea2019.2
+# For Ultimate it is: ENV IDEA_CONFDIR .IntelliJIdea2019.2
 RUN cd /srv && \
-    wget -nv https://download.jetbrains.com/idea/ideaI$V_IDEA_EDITION-$V_IDEA-no-jdk.tar.gz && \
-    tar xf ideaI$V_IDEA_EDITION-$V_IDEA-no-jdk.tar.gz && \
+    wget -nv https://download.jetbrains.com/idea/ideaI$V_IDEA_EDITION-$V_IDEA-no-jbr.tar.gz && \
+    tar xf ideaI$V_IDEA_EDITION-$V_IDEA-no-jbr.tar.gz && \
     ln -s idea-I$V_IDEA_EDITION-* idea.latest && \
     # The idea-cli-inspector needs write access to the IDEA bin directory as a hack for scope
     chown -R ideainspect:ideainspect /srv/idea.latest/bin && \
     mkdir /home/ideainspect/$IDEA_CONFDIR && \
     ln -s /home/ideainspect/$IDEA_CONFDIR idea.config.latest && \
-    rm ideaI$V_IDEA_EDITION-$V_IDEA-no-jdk.tar.gz
+    rm ideaI$V_IDEA_EDITION-$V_IDEA-no-jbr.tar.gz
 
 # Point inspector to the new home
 # NOTE: This only takes effect for user `root`. For user ideainspect check home/ideainspect/.bashrc

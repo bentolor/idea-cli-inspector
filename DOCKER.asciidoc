@@ -21,7 +21,7 @@ inspection.
 It is based on
 
 * IntelliJ Community Edition (vanilla)
-* OpenJDK Java 8
+* AdoptOpenJDK Java 11
 
 In your practical usage scenario you might probably have different
 needs like:
