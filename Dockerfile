@@ -76,7 +76,7 @@ RUN useradd -mUs /bin/bash ideainspect
 # 3. The first run to pre-populate the indexes won't work with ultimate edition, yet. This is due to outstanding features in
 #    the current Docker daemon. See https://github.com/moby/buildkit/issues/763
 #
-ENV V_IDEA 2018.3.3
+ENV V_IDEA 2018.3.6
 ENV V_IDEA_EDITION C
 ENV IDEA_CONFDIR .IntelliJIdea2018.3
 # For Ultimate it is: ENV IDEA_CONFDIR .IntelliJIdea2018.3
