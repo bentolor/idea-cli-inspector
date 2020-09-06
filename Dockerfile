@@ -7,10 +7,10 @@
 #
 FROM        adoptopenjdk:11-jdk-hotspot
 MAINTAINER  Benjamin Schmid <dockerhub@benjamin-schmid.de>
-
+LABEL maintainer="Benjamin Schmid <dockerhub@benjamin-schmid.de>"
 
 # First install some basic tools to get them or their latest versions (wget, apt).
-RUN  apt-get update &&  apt-get install -y wget sudo locales groovy && \
+RUN  apt-get update &&  apt-get install -y wget sudo locales groovy git && \
     apt-get autoremove --purge -y && apt-get clean && \
     rm /var/lib/apt/lists/*.* && rm -fr /tmp/* /var/tmp/*
 
