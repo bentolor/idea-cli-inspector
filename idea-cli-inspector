@@ -28,7 +28,7 @@ import java.nio.file.Paths
      This is my very first Groovy script. Please be nice.
 */
 println "="
-println "= IntellIJ IDEA Code Analysis Wrapper - v1.7 - @bentolor"
+println "= IntellIJ IDEA Code Analysis Wrapper - v1.8 - @bentolor"
 println "= "
 println "Use --help or see https://github.com/bentolor/idea-cli-inspector/ for help"
 println ""
@@ -198,8 +198,8 @@ private List<String> parseConfigFile() {
     configFile.eachLine { line ->
       def values = line.split(':', 2)
       if (!line.startsWith('#') && values.length == 2) {
-        configArgs.push('--' + values[0].trim())
-        configArgs.push(values[1].trim())
+        configArgs << ('--' + values[0].trim())
+        configArgs << values[1].trim()
       }
     }
   }
