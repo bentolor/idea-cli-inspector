@@ -22,6 +22,27 @@
 # IntelliJ
 /out/
 /target/
+.cache/
+.local/
+.java/
+port.lock
+consentOptions/
+colors.scheme.xml
+*.statistics.xml
+laf.xml
+window.state.xml
+other.xml
+debugger.xml
+actionSummary.xml
+pluginAdvertiser.xml
+recentProjects.xml
+visualizationTool.xml
+tasks/
+workspace/
+ide-features-trainer.xml
+
+
+
 
 # Custom link to your idea installation
 /idea

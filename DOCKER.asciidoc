@@ -52,8 +52,8 @@ can do this interactive.
 Therefore just run
 
 ```
-xhost +
-docker run -it --rm -e DISPLAY=$DISPLAY
+xhost si:localuser:root 
+docker run -it --rm -e DISPLAY=$DISPLAY \
           -v /tmp/.X11-unix:/tmp/.X11-unix  \
           -v `pwd`/home:/home \
           bentolor/idea-cli-inspector su ideainspect -c '/srv/idea.latest/bin/idea.sh'

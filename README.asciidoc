@@ -271,7 +271,7 @@ Two things to note:
   with the configuration directories mapped as Docker volumes i.e. like:
 
 ----
-xhost +
+xhost si:localuser:root 
 docker run -it --rm \
            --dns 192.168.144.18 --dns 8.8.8.8 \
            -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
