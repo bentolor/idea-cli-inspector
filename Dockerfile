@@ -10,7 +10,7 @@ MAINTAINER  Benjamin Schmid <dockerhub@benjamin-schmid.de>
 LABEL maintainer="Benjamin Schmid <dockerhub@benjamin-schmid.de>"
 
 # First install some basic tools to get them or their latest versions (wget, apt).
-RUN  apt-get update &&  apt-get install -y wget sudo locales groovy git && \
+RUN  apt-get update -q &&  apt-get install -q -y wget sudo locales zip unzip git && \
     apt-get autoremove --purge -y && apt-get clean && \
     rm /var/lib/apt/lists/*.* && rm -fr /tmp/* /var/tmp/*
 
@@ -18,10 +18,18 @@ RUN  apt-get update &&  apt-get install -y wget sudo locales groovy git && \
 # NOTE:
 #    This only taked effect for user root. Check home/ideainspect/.bashrc for main user
 #    environment variables
-RUN locale-gen en_US.UTF-8
-RUN update-locale en_US.UTF8
+RUN locale-gen en_US.UTF-8 && update-locale en_US.UTF8
 ENV LANG "en_US.UTF-8"
 ENV LC_MESSAGES "C"
+
+# Provide a non-privileged user for running IntelliJ
+RUN useradd -mUs /bin/bash ideainspect
+
+# Install SDKMAN! 
+RUN sudo -u ideainspect sh -c 'curl -s "https://get.sdkman.io" | bash'
+
+# Install Groovy Lang
+RUN sudo -u ideainspect bash -ci 'shopt -s expand_aliases ; sdk install groovy'
 
 # --------------- Install Oracle Java PPAs
 #RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" | tee /etc/apt/sources.list.d/webupd8team-java.list
@@ -67,10 +75,6 @@ ENV LC_MESSAGES "C"
 #    apt-get clean && \
 #    rm /var/lib/apt/lists/*.* && \
 #    rm -fr /tmp/* /var/tmp/*
-
-
-# Provide a non-privileged user for running IntelliJ
-RUN useradd -mUs /bin/bash ideainspect
 
 #
 # Install IntelliJ IDEA
