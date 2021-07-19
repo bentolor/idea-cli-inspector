@@ -11,6 +11,10 @@
 */*/*/config/*.xml
 */*/*/config/plugins
 !*/*/*/config/options/jdk.table.xml
+*/*/.cache
+*/*/.gradle
+*/*/.java
+*/*/.local
 
 # IDEA files
 .idea/codeStyles

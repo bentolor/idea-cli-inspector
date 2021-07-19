@@ -40,7 +40,9 @@ visualizationTool.xml
 tasks/
 workspace/
 ide-features-trainer.xml
-
+gradle.xml
+path.macros.xml
+updates.xml
 
 
 

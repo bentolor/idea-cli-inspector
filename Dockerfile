@@ -10,7 +10,8 @@ MAINTAINER  Benjamin Schmid <dockerhub@benjamin-schmid.de>
 LABEL maintainer="Benjamin Schmid <dockerhub@benjamin-schmid.de>"
 
 # First install some basic tools to get them or their latest versions (wget, apt).
-RUN  apt-get update -q &&  apt-get install -q -y wget sudo locales zip unzip git && \
+RUN  apt-get update -q &&  apt-get install -q -y wget sudo locales zip unzip git  \
+            libxtst6 libxrender1 libxi6 && \
     apt-get autoremove --purge -y && apt-get clean && \
     rm /var/lib/apt/lists/*.* && rm -fr /tmp/* /var/tmp/*
 
@@ -89,7 +90,7 @@ RUN sudo -u ideainspect bash -ci 'shopt -s expand_aliases ; sdk install groovy'
 # 3. The first run to pre-populate the indexes won't work with ultimate edition, yet. This is due to outstanding features in
 #    the current Docker daemon. See https://github.com/moby/buildkit/issues/763
 #
-ENV V_IDEA 2021.1
+ENV V_IDEA 2021.1.3
 ENV V_IDEA_EDITION C
 ENV IDEA_CONFDIR .IntelliJIdea2021.1
 # For Ultimate it is: ENV IDEA_CONFDIR .IntelliJIdea2019.2
